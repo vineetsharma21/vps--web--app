@@ -1,70 +1,67 @@
 <!DOCTYPE html>
-<!-- HTML5 document type declaration - tells browser this is HTML5 -->
+<!-- ========================================================================================
+     SIGNUP - Premnath Engineering Works Registration
+     ================================================================================
+     Purpose: Employee account creation and onboarding page
+     Framework: Static HTML with Tailwind CSS and vanilla JavaScript
+     Features: Multi-step registration, OTP verification, dark mode toggle,
+               form validation, step indicators, countdown timer
+     Dependencies: Tailwind CSS (CDN), Google Fonts (Oswald, Roboto), Font Awesome
+     Accessibility: Semantic HTML, proper form labels, step navigation
+     ================================================================================ -->
 <html lang="en">
-<!-- Root element with English language attribute for accessibility and SEO -->
 <head>
-  <!-- Document metadata section -->
+  <!-- Character encoding for proper text display -->
   <meta charset="UTF-8">
-  <!-- Character encoding - supports all languages and special characters -->
+  <!-- Responsive viewport configuration -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Responsive design - adjusts to screen size, prevents zoom on mobile -->
+  <!-- Page title for browser tab -->
   <title>Sign Up - Premnath Engineering</title>
-  <!-- Page title shown in browser tab -->
-
-  <!-- Tailwind CSS framework loaded from CDN for utility-first styling -->
+  <!-- Tailwind CSS framework from CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome icons library for UI icons -->
+  <!-- Font Awesome icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- Tailwind configuration for custom theme -->
   <script>
     tailwind.config = {
-      darkMode: 'class',  // Enable dark mode with 'dark' class toggle
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Roboto', 'sans-serif'],     // Default font family
-            display: ['Oswald', 'sans-serif']    // Heading font family
+            sans: ['Roboto', 'sans-serif'],
+            display: ['Oswald', 'sans-serif']
           },
           colors: {
-            page: '#f0f2f5',      // Light background color
-            surface: '#ffffff',   // White surface color
-            dark: '#212529'       // Dark text color
+            page: '#f0f2f5',
+            surface: '#ffffff',
+            dark: '#212529'
           }
         }
       }
     }
   </script>
-
-  <!-- Google Fonts for Oswald and Roboto typefaces -->
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Custom CSS styles for watermark and OTP input styling -->
   <style>
-    /* Watermark styling - subtle background text for branding */
     .watermark {
-      position: fixed;           /* Fixed position relative to viewport */
-      top: 50%; left: 50%;       /* Center the watermark */
-      transform: translate(-50%, -50%) rotate(-45deg);  /* Center and rotate */
-      font-size: 120px;          /* Large text size */
-      color: rgba(0, 0, 0, 0.05); /* Very light gray color */
-      z-index: -1;               /* Behind all content */
-      pointer-events: none;       /* Doesn't interfere with clicks */
-      font-weight: bold;         /* Bold text */
-      font-family: 'Oswald', sans-serif;  /* Oswald font */
-      text-transform: uppercase;  /* All caps */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 120px;
+      color: rgba(0, 0, 0, 0.05);
+      z-index: -1;
+      pointer-events: none;
+      font-weight: bold;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
     }
-
-    /* OTP input field styling for verification code input */
     .otp-input {
-      width: 50px;               /* Fixed width for each digit */
-      height: 55px;              /* Fixed height */
-      text-align: center;        /* Center text horizontally */
-      font-size: 24px;           /* Large font for visibility */
-      font-weight: bold;         /* Bold text */
-      border-radius: 10px;       /* Rounded corners */
-      transition: all 0.2s;      /* Smooth transitions */
+      width: 50px;
+      height: 55px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 10px;
+      transition: all 0.2s;
     }
     .otp-input:focus {
       transform: scale(1.05);
@@ -90,18 +87,6 @@
     .dark .step-pending {
       background: #374151;
       color: #6b7280;
-    }
-
-    /* Welcome section fade out animation */
-    @keyframes fadeOut {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(-10px); }
-    }
-
-    /* Enhanced button hover effects */
-    #demoLogin:hover, .demo-link:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
   </style>
 </head>
@@ -130,77 +115,42 @@
   <div class="flex-grow flex items-center justify-center p-4">
     <div class="watermark">PREMNATHRAIL</div>
 
-    <!-- Welcome section for new users -->
-    <div id="welcomeSection" class="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-6 rounded-xl shadow-lg mb-6 w-full max-w-2xl border-l-4 border-green-500">
-      <div class="flex items-start gap-4">
-        <div class="flex-shrink-0">
-          <div class="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
-            <i class="fas fa-user-plus text-green-600 dark:text-green-400 text-xl"></i>
-          </div>
-        </div>
-        <div class="flex-grow">
-          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Join Premnath Engineering Platform</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-            Create your account to access professional railway engineering tools and collaborate with your team.
-          </p>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-            <div class="flex items-center gap-2">
-              <i class="fas fa-shield-alt text-green-600"></i>
-              <span>Secure Account Setup</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <i class="fas fa-clock text-blue-600"></i>
-              <span>Quick 3-Step Process</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <i class="fas fa-envelope text-purple-600"></i>
-              <span>Email Verification</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <i class="fas fa-users-cog text-orange-600"></i>
-              <span>Team Collaboration</span>
-            </div>
-          </div>
-          <button id="dismissWelcome" class="mt-3 text-xs text-green-600 dark:text-green-400 hover:underline font-medium">
-            <i class="fas fa-times mr-1"></i>Dismiss
-          </button>
-        </div>
-      </div>
-    </div>
-
     <div class="bg-surface dark:bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md border-t-4 border-green-600">
-      <!-- Header Section with enhanced guidance -->
+      <!-- Header Section -->
       <div class="text-center mb-6">
         <img src="/assets/images/logo.png" alt="Premnath Engineering" class="h-12 mx-auto mb-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
         <div class="w-12 h-12 bg-black text-white hidden mx-auto mb-2 items-center justify-center font-display font-bold text-xl rounded">P</div>
-        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Create Your Account</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          Join our engineering platform in just 3 simple steps
-        </p>
       </div>
 
-      <!-- Step Indicators -->
+      <h2 class="text-xl font-semibold mb-4 text-center text-gray-700 dark:text-gray-300">Create Employee Account</h2>
+
+      <!-- Multi-step Registration Progress Indicator -->
       <div class="flex justify-center items-center gap-4 mb-8">
+        <!-- Step 1: Email Input -->
         <div class="flex flex-col items-center">
           <div id="step1-indicator" class="step-indicator step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">1</div>
           <span class="text-xs mt-1 text-gray-500 dark:text-gray-400">Email</span>
         </div>
+        <!-- Progress Line 1 -->
         <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded" id="line1"></div>
+        <!-- Step 2: OTP Verification -->
         <div class="flex flex-col items-center">
           <div id="step2-indicator" class="step-indicator step-pending w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">2</div>
           <span class="text-xs mt-1 text-gray-500 dark:text-gray-400">Verify</span>
         </div>
+        <!-- Progress Line 2 -->
         <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded" id="line2"></div>
+        <!-- Step 3: Account Details -->
         <div class="flex flex-col items-center">
           <div id="step3-indicator" class="step-indicator step-pending w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">3</div>
           <span class="text-xs mt-1 text-gray-500 dark:text-gray-400">Details</span>
         </div>
       </div>
 
-      <!-- Status Message -->
+      <!-- Status Message Display Area -->
       <div id="statusMessage" class="hidden mb-6 p-3 rounded-lg text-sm font-semibold"></div>
 
-      <!-- STEP 1: Email Input -->
+      <!-- Step 1: Email Collection Form -->
       <div id="step1" class="step-content">
         <form id="emailForm" class="space-y-6">
           <div>
@@ -304,33 +254,16 @@
         </form>
       </div>
 
-      <!-- Enhanced Links Section -->
+      <!-- Links Section -->
       <div class="mt-8 space-y-4 text-center">
-        <!-- Login link -->
         <div class="text-sm text-gray-600 dark:text-gray-400">
-          <p class="mb-2">Already have an account?</p>
-          <a href="/login.html" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition text-sm">
-            <i class="fas fa-sign-in-alt"></i>
-            Log In Instead
+          <p>Already have an account?</p>
+          <a href="/login.html" class="text-green-600 dark:text-green-400 font-semibold hover:underline mt-1 inline-block transition">
+            <i class="fas fa-sign-in-alt mr-1"></i>Log In here
           </a>
         </div>
-
-        <!-- Help and support links -->
-        <div class="border-t border-gray-200 dark:border-gray-600 pt-4 space-y-2">
-          <div class="flex flex-col sm:flex-row gap-2 justify-center text-xs">
-            <a href="/user-guide.html" class="text-blue-600 dark:text-blue-400 hover:underline">
-              <i class="fas fa-book mr-1"></i>Getting Started Guide
-            </a>
-            <span class="hidden sm:inline text-gray-400">•</span>
-            <a href="/faq.html" class="text-blue-600 dark:text-blue-400 hover:underline">
-              <i class="fas fa-question-circle mr-1"></i>FAQ
-            </a>
-            <span class="hidden sm:inline text-gray-400">•</span>
-            <a href="mailto:support@premnath.com" class="text-blue-600 dark:text-blue-400 hover:underline">
-              <i class="fas fa-envelope mr-1"></i>Support
-            </a>
-          </div>
-          <a href="/" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition inline-block">
+        <div class="border-t border-gray-200 dark:border-gray-600 pt-4">
+          <a href="/" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition">
             <i class="fas fa-home mr-1"></i>Back to Home
           </a>
         </div>
@@ -343,24 +276,6 @@
     let countdownInterval = null;
 
     document.addEventListener("DOMContentLoaded", function() {
-      // Welcome section management
-      const welcomeSection = document.getElementById('welcomeSection');
-      const dismissWelcome = document.getElementById('dismissWelcome');
-
-      // Check if welcome was previously dismissed
-      if (localStorage.getItem('signupWelcomeDismissed')) {
-        welcomeSection.style.display = 'none';
-      }
-
-      // Dismiss welcome section
-      dismissWelcome.addEventListener('click', function() {
-        welcomeSection.style.animation = 'fadeOut 0.3s ease forwards';
-        setTimeout(() => {
-          welcomeSection.style.display = 'none';
-          localStorage.setItem('signupWelcomeDismissed', 'true');
-        }, 300);
-      });
-
       // Theme toggle
       const themeToggle = document.getElementById('theme-toggle');
       const sunIcon = document.getElementById('sun-icon');

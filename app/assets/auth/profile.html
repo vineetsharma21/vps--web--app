@@ -1,10 +1,25 @@
 <!DOCTYPE html>
+<!-- ========================================================================================
+     PROFILE - Premnath Engineering Works User Management
+     ================================================================================
+     Purpose: User profile management and license activation page
+     Framework: Static HTML with Tailwind CSS and vanilla JavaScript
+     Features: Profile editing, photo upload, password change modal,
+               license activation, dark mode toggle, toast notifications
+     Dependencies: Tailwind CSS (CDN), Google Fonts (Oswald, Roboto), Font Awesome
+     Accessibility: Semantic HTML, proper form labels, modal dialogs
+     ================================================================================ -->
 <html lang="en">
 <head>
+  <!-- Character encoding for proper text display -->
   <meta charset="UTF-8">
+  <!-- Responsive viewport configuration -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Page title for browser tab -->
   <title>User Profile - Premnath Engineering</title>
+  <!-- Tailwind CSS framework from CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -108,31 +123,31 @@
       <!-- Status Message -->
       <div id="statusMessage" class="hidden mb-6 p-3 rounded text-sm font-semibold"></div>
 
-      <!-- Form Grid -->
+      <!-- Profile Update Form Fields -->
       <div class="space-y-6">
 
-        <!-- Name -->
+        <!-- Full Name Input Field -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Full Name</label>
           <input type="text" id="userName" placeholder="Enter your full name"
                  class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-dark focus:ring-2 focus:ring-dark/20 focus:outline-none transition">
         </div>
 
-        <!-- Phone -->
+        <!-- Phone Number Input Field -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Phone Number</label>
           <input type="tel" id="userPhone" placeholder="+91 98765 43210"
                  class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-dark focus:ring-2 focus:ring-dark/20 focus:outline-none transition">
         </div>
 
-        <!-- Email (Read-only) -->
+        <!-- Email Display Field (Read-only) -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Email Address</label>
           <input type="email" id="userEmail" readonly
                  class="w-full p-3 bg-gray-100 dark:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 cursor-not-allowed">
         </div>
 
-        <!-- License Status -->
+        <!-- License Status Display -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">License Status</label>
           <div class="space-y-3">

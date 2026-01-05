@@ -112,96 +112,51 @@
         </div>
     </nav>
 
-    <!-- ========================================================================================
-         MAIN CONTENT AREA - 500 Error Display
-         ================================================================================
-         Layout: Centered flex layout with error icon, message, and action buttons
-         Features: Pulse animation on error icon, responsive design, dark mode support
-         Purpose: Clear communication of server error with user-friendly recovery options
-         ================================================================================ -->
+    <!-- 500 Content -->
     <main class="flex-1 flex items-center justify-center px-6 py-12">
-        <!-- Centered container for error content with responsive padding -->
         <div class="text-center max-w-lg">
-            <!-- ========================================================================================
-                 ERROR ICON SECTION - Visual Server Error Indicator
-                 ================================================================================
-                 Features: Animated warning triangle icon with pulse effect
-                 Purpose: Immediate visual indication of server-side error
-                 Animation: Continuous pulse to show ongoing system issues
-                 ================================================================================ -->
+            <!-- Server Icon -->
             <div class="mb-8">
-                <!-- Pulsing error icon container with red background -->
                 <div class="inline-flex items-center justify-center w-32 h-32 bg-red-100 dark:bg-red-900/30 rounded-full pulse-animation">
-                    <!-- Warning triangle SVG icon from Heroicons -->
                     <svg class="w-16 h-16 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <!-- SVG path for warning triangle with exclamation mark -->
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 </div>
             </div>
-
-            <!-- ========================================================================================
-                 ERROR CODE DISPLAY - Large 500 Text
-                 ================================================================================
-                 Purpose: Clear visual identification of error type
-                 Styling: Large red text using Oswald font for impact
-                 ================================================================================ -->
+            
+            <!-- Large 500 Text -->
             <span class="text-6xl font-display font-bold text-red-500 block mb-4">500</span>
-
-            <!-- ========================================================================================
-                 ERROR TITLE AND MESSAGE - User-Friendly Error Communication
-                 ================================================================================
-                 Title: "Internal Server Error" - Technical but understandable
-                 Message: Explains the issue and reassures user of resolution efforts
-                 Styling: Professional typography with dark mode support
-                 ================================================================================ -->
+            
+            <!-- Error Message -->
             <h1 class="text-3xl font-display font-bold text-gray-900 dark:text-white mb-4">
                 Internal Server Error
             </h1>
             <p class="text-gray-600 dark:text-gray-400 mb-8">
-                Something went wrong on our end. Our team has been notified and is working to fix the issue.
+                Something went wrong on our end. Our team has been notified and is working to fix the issue. 
                 Please try again in a few moments.
             </p>
-
-            <!-- ========================================================================================
-                 ACTION BUTTONS - User Recovery Options
-                 ================================================================================
-                 Features: "Try Again" button (reloads page), "Go Home" link (navigates to homepage)
-                 Layout: Responsive flex layout (column on mobile, row on desktop)
-                 Icons: Refresh icon for retry, home icon for navigation
-                 ================================================================================ -->
+            
+            <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <!-- Try Again button - reloads current page to retry operation -->
                 <button onclick="location.reload()" class="inline-flex items-center justify-center gap-2 bg-brand hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition shadow-lg hover:shadow-xl">
-                    <!-- Refresh icon from Heroicons -->
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                     Try Again
                 </button>
-                <!-- Go Home link - navigates to homepage -->
                 <a href="/" class="inline-flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold px-8 py-4 rounded-lg transition">
-                    <!-- Home icon from Heroicons -->
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                     Go Home
                 </a>
             </div>
-
-            <!-- ========================================================================================
-                 TECHNICAL INFORMATION - Error Code for Support
-                 ================================================================================
-                 Purpose: Provides unique error identifier for debugging and support
-                 Features: Timestamp-based error code generation, contact instructions
-                 Styling: Subtle gray text with code block styling
-                 ================================================================================ -->
+            
+            <!-- Technical Info -->
             <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <!-- Support contact information with error code -->
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     If the problem persists, please contact support with this error code:
                     <br>
-                    <!-- Error code display with timestamp-based unique identifier -->
                     <code class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs mt-2 inline-block">
                         ERR_500_<span id="errorTime"></span>
                     </code>
@@ -210,49 +165,26 @@
         </div>
     </main>
 
-    <!-- ========================================================================================
-         FOOTER - Site Navigation and Copyright
-         ================================================================================
-         Features: Copyright notice, legal page links, responsive layout
-         Links: Privacy Policy, Terms, FAQ, Documentation, Disclaimer
-         Purpose: Legal compliance and additional navigation options
-         ================================================================================ -->
+    <!-- Footer -->
     <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6">
-        <!-- Footer container with responsive layout -->
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <!-- Copyright notice with company name -->
-            <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">© 2024 Premnath Engineering Works • All rights reserved</p>
-            <!-- Navigation links to legal and help pages -->
-            <nav class="flex flex-wrap gap-4 mt-2">
-                <a href="/privacy-policy.html" class="text-xs text-blue-600 hover:underline">Privacy Policy</a>
-                <a href="/terms.html" class="text-xs text-blue-600 hover:underline">Terms</a>
-                <a href="/faq.html" class="text-xs text-blue-600 hover:underline">FAQ</a>
-                <a href="/documentation.html" class="text-xs text-blue-600 hover:underline">Documentation</a>
-                <a href="/disclaimer.html" class="text-xs text-blue-600 hover:underline">Disclaimer</a>
-            </nav>
-        </div>
+            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">© 2024 Premnath Engineering Works • All rights reserved</p>
+                <nav class="flex flex-wrap gap-4 mt-2">
+                    <a href="/privacy-policy.html" class="text-xs text-blue-600 hover:underline">Privacy Policy</a>
+                    <a href="/terms.html" class="text-xs text-blue-600 hover:underline">Terms</a>
+                    <a href="/faq.html" class="text-xs text-blue-600 hover:underline">FAQ</a>
+                    <a href="/documentation.html" class="text-xs text-blue-600 hover:underline">Documentation</a>
+                    <a href="/disclaimer.html" class="text-xs text-blue-600 hover:underline">Disclaimer</a>
+                </nav>
+            </div>
     </footer>
 
-    <!-- ========================================================================================
-         JAVASCRIPT - Theme and Error Code Initialization
-         ================================================================================
-         Features: Dark mode persistence, unique error code generation
-         Purpose: Maintains user preferences and provides debugging information
-         ================================================================================ -->
     <script>
-        // ========================================================================================
-        // THEME INITIALIZATION
-        // ========================================================================================
-        // Checks localStorage for saved theme preference and applies dark mode if set
+        // Theme initialization
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
         }
-
-        // ========================================================================================
-        // ERROR CODE GENERATION
-        // ========================================================================================
-        // Generates unique error code using current timestamp converted to base36
-        // This provides a unique identifier for each error occurrence for debugging
+        // Error timestamp
         document.getElementById('errorTime').textContent = Date.now().toString(36).toUpperCase();
     </script>
 </body>
