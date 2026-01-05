@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<!-- HTML5 document type declaration - tells browser this is HTML5 -->
+<html lang="en">
+<!-- Root element with English language attribute for accessibility and SEO -->
+<head>
+  <!-- Document metadata section -->
+  <meta charset="UTF-8">
+  <!-- Character encoding - supports all languages and special characters -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Responsive design - adjusts to screen size, prevents zoom on mobile -->
+  <title>Sign Up - Premnath Engineering</title>
+  <!-- Page title shown in browser tab -->
+
+  <!-- Tailwind CSS framework loaded from CDN for utility-first styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome icons library for UI icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Tailwind configuration for custom theme -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',  // Enable dark mode with 'dark' class toggle
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Roboto', 'sans-serif'],     // Default font family
+            display: ['Oswald', 'sans-serif']    // Heading font family
+          },
+          colors: {
+            page: '#f0f2f5',      // Light background color
+            surface: '#ffffff',   // White surface color
+            dark: '#212529'       // Dark text color
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts for Oswald and Roboto typefaces -->
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS styles for watermark and OTP input styling -->
+  <style>
+    /* Watermark styling - subtle background text for branding */
+    .watermark {
+      position: fixed;           /* Fixed position relative to viewport */
+      top: 50%; left: 50%;       /* Center the watermark */
+      transform: translate(-50%, -50%) rotate(-45deg);  /* Center and rotate */
+      font-size: 120px;          /* Large text size */
+      color: rgba(0, 0, 0, 0.05); /* Very light gray color */
+      z-index: -1;               /* Behind all content */
+      pointer-events: none;       /* Doesn't interfere with clicks */
+      font-weight: bold;         /* Bold text */
+      font-family: 'Oswald', sans-serif;  /* Oswald font */
+      text-transform: uppercase;  /* All caps */
+    }
+
+    /* OTP input field styling for verification code input */
+    .otp-input {
+      width: 50px;               /* Fixed width for each digit */
+      height: 55px;              /* Fixed height */
+      text-align: center;        /* Center text horizontally */
+      font-size: 24px;           /* Large font for visibility */
+      font-weight: bold;         /* Bold text */
+      border-radius: 10px;       /* Rounded corners */
+      transition: all 0.2s;      /* Smooth transitions */
+    }
+    .otp-input:focus {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+    }
+    .step-indicator {
+      transition: all 0.3s ease;
+    }
+    .step-active {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+    }
+    .step-completed {
+      background: #22c55e;
+      color: white;
+    }
+    .step-pending {
+      background: #e5e7eb;
+      color: #9ca3af;
+    }
+    .dark .step-pending {
+      background: #374151;
+      color: #6b7280;
+    }
+
+    /* Welcome section fade out animation */
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+
+    /* Enhanced button hover effects */
+    #demoLogin:hover, .demo-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-page dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans flex flex-col min-h-screen">
+  <!-- NAVBAR -->
+  <nav class="bg-surface dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-20">
+    <div class="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
+        <a href="/" class="flex items-center gap-3 group">
+            <img src="/assets/images/logo.png" alt="Premnath Engineering" class="w-[150px] md:w-[200px] h-[34px] md:h-[45px] rounded group-hover:scale-105 transition shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="w-[150px] md:w-[200px] h-[34px] md:h-[45px] bg-black text-white hidden items-center justify-center font-display font-bold text-xl rounded group-hover:bg-blue-700 transition shadow-sm">P</div>
+        </a>
+        <div class="flex items-center gap-4">
+             <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition">
+                <svg id="sun-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <svg id="moon-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="flex-grow flex items-center justify-center p-4">
+    <div class="watermark">PREMNATHRAIL</div>
+
+    <!-- Welcome section for new users -->
+    <div id="welcomeSection" class="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-6 rounded-xl shadow-lg mb-6 w-full max-w-2xl border-l-4 border-green-500">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
+            <i class="fas fa-user-plus text-green-600 dark:text-green-400 text-xl"></i>
+          </div>
+        </div>
+        <div class="flex-grow">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Join Premnath Engineering Platform</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            Create your account to access professional railway engineering tools and collaborate with your team.
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-shield-alt text-green-600"></i>
+              <span>Secure Account Setup</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-clock text-blue-600"></i>
+              <span>Quick 3-Step Process</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-envelope text-purple-600"></i>
+              <span>Email Verification</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-users-cog text-orange-600"></i>
+              <span>Team Collaboration</span>
+            </div>
+          </div>
+          <button id="dismissWelcome" class="mt-3 text-xs text-green-600 dark:text-green-400 hover:underline font-medium">
+            <i class="fas fa-times mr-1"></i>Dismiss
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-surface dark:bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md border-t-4 border-green-600">
+      <!-- Header Section with enhanced guidance -->
+      <div class="text-center mb-6">
+        <img src="/assets/images/logo.png" alt="Premnath Engineering" class="h-12 mx-auto mb-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <div class="w-12 h-12 bg-black text-white hidden mx-auto mb-2 items-center justify-center font-display font-bold text-xl rounded">P</div>
+        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Create Your Account</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Join our engineering platform in just 3 simple steps
+        </p>
+      </div>
+
+      <!-- Step Indicators -->
+      <div class="flex justify-center items-center gap-4 mb-8">
+        <div class="flex flex-col items-center">
+          <div id="step1-indicator" class="step-indicator step-active w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">1</div>
+          <span class="text-xs mt-1 text-gray-500 dark:text-gray-400">Email</span>
+        </div>
+        <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded" id="line1"></div>
+        <div class="flex flex-col items-center">
+          <div id="step2-indicator" class="step-indicator step-pending w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">2</div>
+          <span class="text-xs mt-1 text-gray-500 dark:text-gray-400">Verify</span>
+        </div>
+        <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded" id="line2"></div>
+        <div class="flex flex-col items-center">
+          <div id="step3-indicator" class="step-indicator step-pending w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">3</div>
+          <span class="text-xs mt-1 text-gray-500 dark:text-gray-400">Details</span>
+        </div>
+      </div>
+
+      <!-- Status Message -->
+      <div id="statusMessage" class="hidden mb-6 p-3 rounded-lg text-sm font-semibold"></div>
+
+      <!-- STEP 1: Email Input -->
+      <div id="step1" class="step-content">
+        <form id="emailForm" class="space-y-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+              <i class="fas fa-envelope mr-2 text-green-500"></i>Email Address
+            </label>
+            <input type="email" id="email" placeholder="engineer@premnath.com"
+                   class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition" required>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              <i class="fas fa-info-circle mr-1"></i>We'll send a verification code to this email
+            </p>
+          </div>
+          <button type="submit" id="sendOtpBtn" class="w-full bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+            <i class="fas fa-paper-plane"></i>
+            <span>Send Verification Code</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- STEP 2: OTP Verification -->
+      <div id="step2" class="step-content hidden">
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-envelope-open-text text-3xl text-green-600"></i>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400">Enter the 6-digit code sent to</p>
+          <p id="displayEmail" class="font-semibold text-green-600 dark:text-green-400"></p>
+        </div>
+
+        <form id="otpForm" class="space-y-6">
+          <div class="flex justify-center gap-2">
+            <input type="text" maxlength="1" class="otp-input bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:border-green-500" data-index="0">
+            <input type="text" maxlength="1" class="otp-input bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:border-green-500" data-index="1">
+            <input type="text" maxlength="1" class="otp-input bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:border-green-500" data-index="2">
+            <input type="text" maxlength="1" class="otp-input bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:border-green-500" data-index="3">
+            <input type="text" maxlength="1" class="otp-input bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:border-green-500" data-index="4">
+            <input type="text" maxlength="1" class="otp-input bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:border-green-500" data-index="5">
+          </div>
+
+          <button type="submit" id="verifyOtpBtn" class="w-full bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+            <i class="fas fa-check-circle"></i>
+            <span>Verify Code</span>
+          </button>
+        </form>
+
+        <div class="text-center mt-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Didn't receive the code? 
+            <button id="resendBtn" class="text-green-600 dark:text-green-400 font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              Resend (<span id="countdown">60</span>s)
+            </button>
+          </p>
+          <button id="changeEmailBtn" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mt-2">
+            <i class="fas fa-arrow-left mr-1"></i>Change email address
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Complete Registration -->
+      <div id="step3" class="step-content hidden">
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-check-double text-3xl text-green-600"></i>
+          </div>
+          <p class="text-green-600 dark:text-green-400 font-semibold">
+            <i class="fas fa-check-circle mr-1"></i>Email Verified!
+          </p>
+          <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">Complete your account setup</p>
+        </div>
+
+        <form id="completeForm" class="space-y-5">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+              <i class="fas fa-user mr-2 text-green-500"></i>Full Name
+            </label>
+            <input type="text" id="fullName" placeholder="Enter your full name"
+                   class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+              <i class="fas fa-lock mr-2 text-green-500"></i>Password
+            </label>
+            <input type="password" id="password" placeholder="Create a strong password"
+                   class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition" required>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum 6 characters</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+              <i class="fas fa-lock mr-2 text-green-500"></i>Confirm Password
+            </label>
+            <input type="password" id="confirmPassword" placeholder="Confirm your password"
+                   class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:outline-none transition" required>
+          </div>
+
+          <button type="submit" id="createAccountBtn" class="w-full bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+            <i class="fas fa-user-plus"></i>
+            <span>Create Account</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Enhanced Links Section -->
+      <div class="mt-8 space-y-4 text-center">
+        <!-- Login link -->
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          <p class="mb-2">Already have an account?</p>
+          <a href="/login.html" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition text-sm">
+            <i class="fas fa-sign-in-alt"></i>
+            Log In Instead
+          </a>
+        </div>
+
+        <!-- Help and support links -->
+        <div class="border-t border-gray-200 dark:border-gray-600 pt-4 space-y-2">
+          <div class="flex flex-col sm:flex-row gap-2 justify-center text-xs">
+            <a href="/user-guide.html" class="text-blue-600 dark:text-blue-400 hover:underline">
+              <i class="fas fa-book mr-1"></i>Getting Started Guide
+            </a>
+            <span class="hidden sm:inline text-gray-400">•</span>
+            <a href="/faq.html" class="text-blue-600 dark:text-blue-400 hover:underline">
+              <i class="fas fa-question-circle mr-1"></i>FAQ
+            </a>
+            <span class="hidden sm:inline text-gray-400">•</span>
+            <a href="mailto:support@premnath.com" class="text-blue-600 dark:text-blue-400 hover:underline">
+              <i class="fas fa-envelope mr-1"></i>Support
+            </a>
+          </div>
+          <a href="/" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition inline-block">
+            <i class="fas fa-home mr-1"></i>Back to Home
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let userEmail = '';
+    let countdownInterval = null;
+
+    document.addEventListener("DOMContentLoaded", function() {
+      // Welcome section management
+      const welcomeSection = document.getElementById('welcomeSection');
+      const dismissWelcome = document.getElementById('dismissWelcome');
+
+      // Check if welcome was previously dismissed
+      if (localStorage.getItem('signupWelcomeDismissed')) {
+        welcomeSection.style.display = 'none';
+      }
+
+      // Dismiss welcome section
+      dismissWelcome.addEventListener('click', function() {
+        welcomeSection.style.animation = 'fadeOut 0.3s ease forwards';
+        setTimeout(() => {
+          welcomeSection.style.display = 'none';
+          localStorage.setItem('signupWelcomeDismissed', 'true');
+        }, 300);
+      });
+
+      // Theme toggle
+      const themeToggle = document.getElementById('theme-toggle');
+      const sunIcon = document.getElementById('sun-icon');
+      const moonIcon = document.getElementById('moon-icon');
+      const html = document.documentElement;
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      if (currentTheme === 'dark') {
+        html.classList.add('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      }
+      themeToggle.addEventListener('click', () => {
+        if (html.classList.contains('dark')) {
+          html.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+          sunIcon.classList.remove('hidden');
+          moonIcon.classList.add('hidden');
+        } else {
+          html.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+          sunIcon.classList.add('hidden');
+          moonIcon.classList.remove('hidden');
+        }
+      });
+
+      if (localStorage.getItem("token")) {
+        window.location.href = "/";
+      }
+
+      // OTP Input handling
+      const otpInputs = document.querySelectorAll('.otp-input');
+      otpInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          const value = e.target.value;
+          if (value.length === 1 && index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
+          }
+          // Auto-submit when all filled
+          if (index === otpInputs.length - 1 && value.length === 1) {
+            const allFilled = Array.from(otpInputs).every(inp => inp.value.length === 1);
+            if (allFilled) {
+              document.getElementById('otpForm').dispatchEvent(new Event('submit'));
+            }
+          }
+        });
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && input.value === '' && index > 0) {
+            otpInputs[index - 1].focus();
+          }
+        });
+        // Allow paste
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+          pastedData.split('').forEach((char, i) => {
+            if (otpInputs[i]) otpInputs[i].value = char;
+          });
+          if (pastedData.length === 6) {
+            document.getElementById('otpForm').dispatchEvent(new Event('submit'));
+          }
+        });
+      });
+    });
+
+    function showStatus(message, isError = false) {
+      const statusDiv = document.getElementById('statusMessage');
+      statusDiv.textContent = message;
+      statusDiv.className = `mb-6 p-3 rounded-lg text-sm font-semibold ${isError ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'}`;
+      statusDiv.classList.remove('hidden');
+      setTimeout(() => statusDiv.classList.add('hidden'), 5000);
+    }
+
+    function goToStep(step) {
+      document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`step${step}`).classList.remove('hidden');
+
+      for (let i = 1; i <= 3; i++) {
+        const indicator = document.getElementById(`step${i}-indicator`);
+        indicator.classList.remove('step-active', 'step-completed', 'step-pending');
+        if (i < step) {
+          indicator.classList.add('step-completed');
+          indicator.innerHTML = '<i class="fas fa-check"></i>';
+        } else if (i === step) {
+          indicator.classList.add('step-active');
+          indicator.textContent = i;
+        } else {
+          indicator.classList.add('step-pending');
+          indicator.textContent = i;
+        }
+      }
+      // Update connecting lines
+      document.getElementById('line1').style.background = step > 1 ? '#22c55e' : '';
+      document.getElementById('line2').style.background = step > 2 ? '#22c55e' : '';
+    }
+
+    function startCountdown() {
+      let seconds = 60;
+      const countdownEl = document.getElementById('countdown');
+      const resendBtn = document.getElementById('resendBtn');
+      resendBtn.disabled = true;
+      
+      if (countdownInterval) clearInterval(countdownInterval);
+      
+      countdownInterval = setInterval(() => {
+        seconds--;
+        countdownEl.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(countdownInterval);
+          resendBtn.disabled = false;
+          resendBtn.innerHTML = 'Resend Code';
+        }
+      }, 1000);
+    }
+
+    // STEP 1: Send OTP
+    document.getElementById('emailForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const btn = document.getElementById('sendOtpBtn');
+      
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+
+      try {
+        const res = await fetch('/auth/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          userEmail = email;
+          document.getElementById('displayEmail').textContent = email;
+          goToStep(2);
+          startCountdown();
+          document.querySelector('.otp-input').focus();
+          showStatus('✅ Verification code sent to your email!');
+        } else {
+          showStatus(data.detail || 'Failed to send OTP', true);
+        }
+      } catch (err) {
+        showStatus('Server error. Please try again.', true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send Verification Code';
+      }
+    });
+
+    // STEP 2: Verify OTP
+    document.getElementById('otpForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const otpInputs = document.querySelectorAll('.otp-input');
+      const otp = Array.from(otpInputs).map(inp => inp.value).join('');
+      
+      if (otp.length !== 6) {
+        showStatus('Please enter all 6 digits', true);
+        return;
+      }
+
+      const btn = document.getElementById('verifyOtpBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Verifying...';
+
+      try {
+        const res = await fetch('/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail, otp })
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          goToStep(3);
+          document.getElementById('fullName').focus();
+          showStatus('✅ Email verified successfully!');
+        } else {
+          showStatus(data.detail || 'Invalid OTP', true);
+          otpInputs.forEach(inp => inp.value = '');
+          otpInputs[0].focus();
+        }
+      } catch (err) {
+        showStatus('Server error. Please try again.', true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Verify Code';
+      }
+    });
+
+    // STEP 3: Complete Registration
+    document.getElementById('completeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fullName = document.getElementById('fullName').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        showStatus('Passwords do not match!', true);
+        return;
+      }
+      if (password.length < 6) {
+        showStatus('Password must be at least 6 characters', true);
+        return;
+      }
+
+      const btn = document.getElementById('createAccountBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
+
+      try {
+        const res = await fetch('/auth/signup-with-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            email: userEmail, 
+            password,
+            full_name: fullName
+          })
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          localStorage.setItem("token", "true");
+          localStorage.setItem("user_id", data.id);
+          localStorage.setItem("email", data.email);
+          localStorage.setItem("is_license_active", data.is_license_active);
+          showStatus('🎉 Account created successfully! Redirecting...');
+          setTimeout(() => window.location.href = "/", 1500);
+        } else {
+          showStatus(data.detail || 'Registration failed', true);
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Create Account';
+        }
+      } catch (err) {
+        showStatus('Server error. Please try again.', true);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Create Account';
+      }
+    });
+
+    // Resend OTP
+    document.getElementById('resendBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('resendBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+      try {
+        const res = await fetch('/auth/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail })
+        });
+
+        if (res.ok) {
+          showStatus('✅ New code sent!');
+          startCountdown();
+        } else {
+          const data = await res.json();
+          showStatus(data.detail || 'Failed to resend', true);
+          btn.disabled = false;
+          btn.innerHTML = 'Resend Code';
+        }
+      } catch (err) {
+        showStatus('Server error', true);
+        btn.disabled = false;
+        btn.innerHTML = 'Resend Code';
+      }
+    });
+
+    // Change Email
+    document.getElementById('changeEmailBtn').addEventListener('click', () => {
+      goToStep(1);
+      document.querySelectorAll('.otp-input').forEach(inp => inp.value = '');
+      if (countdownInterval) clearInterval(countdownInterval);
+    });
+  </script>
+
+  <!-- FOOTER -->
+  <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto py-8">
+      <div class="px-6 flex flex-col md:flex-row justify-between items-center">
+          <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">© 2024 Premnath Engineering Works • All rights reserved</p>
+      </div>
+  </footer>
+</body>
+</html>
+

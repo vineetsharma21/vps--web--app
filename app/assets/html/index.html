@@ -1,0 +1,2003 @@
+<!--
+===============================================
+INDEX.HTML - MAIN LANDING PAGE & TOOL DASHBOARD
+===============================================
+PURPOSE: Primary user interface for Premnath Engineering Works SaaS platform
+         Serves as the main dashboard where users access engineering calculation tools
+
+ARCHITECTURE:
+- Single-page application with modular tool launcher system
+- Authentication-based access control with role management
+- Real-time messaging system for user-admin communication
+- Responsive design with mobile-first approach
+
+FRAMEWORK & TECHNOLOGIES:
+- Vanilla HTML5/CSS3/JavaScript (no heavy frameworks)
+- Tailwind CSS for utility-first styling
+- Custom CSS animations and visual effects
+- JWT-based authentication system
+
+FEATURES:
+- Tool launcher grid with 6 engineering calculation modules
+- User authentication (Admin/Manager/User roles)
+- License management (Gold/Silver tiers)
+- Dark/light theme with localStorage persistence
+- Real-time messaging system
+- Responsive design for all device sizes
+
+MODULES INCLUDED:
+1. Hydraulic Motor Calculator - Pump displacement and flow analysis
+2. Tractive Effort Calculator - Rail horsepower and OHE current
+3. Load Distribution Calculator - Wheel load balancing (Q1-Q4)
+4. Qmax Safety Calculator - Vertical force analysis
+5. Braking Performance Calculator - Stopping distance validation
+6. Vehicle Performance Reports - Speed vs slope analysis
+
+AUTHENTICATION SYSTEM:
+- JWT token-based authentication
+- Role-based access control (Admin/Manager/User)
+- License validation for tool access
+- Profile photo management
+- Session management with localStorage
+
+MESSAGING SYSTEM:
+- User-to-admin communication
+- File attachment support
+- Message threading and history
+- Unread message notifications
+- Quick action templates
+
+RESPONSIVE DESIGN:
+- Mobile-first approach with Tailwind breakpoints
+- Adaptive layouts for tablets and desktops
+- Touch-friendly interface elements
+- Optimized for various screen sizes
+
+THEME SYSTEM:
+- Dark/light mode toggle
+- localStorage persistence
+- System preference detection
+- Smooth theme transitions
+
+MAINTENANCE NOTES:
+- Update API_BASE_URL for production deployment
+- Monitor CDN dependencies (Tailwind, Google Fonts)
+- Regular security updates for authentication
+- Performance optimization for large user bases
+
+DEPENDENCIES:
+- Tailwind CSS (CDN): https://cdn.tailwindcss.com
+- Google Fonts: Oswald (headings), Roboto (body)
+- No JavaScript frameworks - pure vanilla JS
+
+BROWSER SUPPORT:
+- Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- Progressive enhancement for older browsers
+- Mobile browsers fully supported
+
+ACCESSIBILITY:
+- WCAG 2.1 AA compliant
+- Proper ARIA labels and roles
+- Keyboard navigation support
+- Screen reader compatibility
+- High contrast mode support
+
+FILE STRUCTURE:
+- Head: Metadata, dependencies, configuration
+- Body: Navigation, header, tool grid, footer
+- Scripts: Authentication, messaging, theme management
+- Modals: Message system, license notifications
+
+INTEGRATION POINTS:
+- Backend API endpoints for authentication
+- Tool-specific calculator pages
+- Message storage and retrieval
+- License validation system
+- Profile management system
+
+PERFORMANCE CONSIDERATIONS:
+- Lazy loading of heavy assets
+- Optimized CSS delivery
+- Minimal JavaScript bundle
+- CDN-hosted resources
+- Efficient DOM manipulation
+-->
+
+<!DOCTYPE html>
+<!-- =========================================
+     HTML5 DOCUMENT DECLARATION
+     ========================================= -->
+<!-- HTML5 doctype - ensures modern browser rendering standards -->
+<html lang="en">
+<!-- Root element with English language for accessibility and SEO -->
+
+<!-- =========================================
+     DOCUMENT HEAD - METADATA & DEPENDENCIES
+     ========================================= -->
+<head>
+    <!-- Character encoding - UTF-8 for international character support -->
+    <meta charset="UTF-8" />
+    <!-- Responsive viewport - enables mobile-friendly scaling and touch -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Page title - appears in browser tab and search results -->
+    <title>Premnath Engineering Works</title>
+
+    <!-- =========================================
+         EXTERNAL DEPENDENCIES - STYLES & FONTS
+         ========================================= -->
+    <!-- Tailwind CSS framework - utility-first CSS loaded from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Oswald (bold headings), Roboto (clean body text) -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- =========================================
+         TAILWIND CONFIGURATION - CUSTOM THEME
+         ========================================= -->
+    <script>
+        // Tailwind CSS configuration - customizes the utility framework
+        tailwind.config = {
+            darkMode: 'class', // Enables class-based dark mode (not media queries)
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'], // Default body font stack
+                        display: ['Oswald', 'sans-serif'], // Heading and accent font
+                    },
+                    colors: {
+                        // Custom engineering/industrial color palette
+                        page: '#f0f2f5', // Light gray page backgrounds
+                        surface: '#ffffff', // Pure white for cards and surfaces
+                        dark: '#212529', // Dark gray for text and accents
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- =========================================
+         CUSTOM CSS - VISUAL EFFECTS & ANIMATIONS
+         ========================================= -->
+    <style>
+        /* =========================================
+             WATERMARK NUMBER EFFECTS
+             ========================================= */
+        /* Large background numbers on tool cards for visual hierarchy */
+        .watermark-text::before {
+            content: attr(data-index);  /* Dynamic numbering from data-index attribute */
+            position: absolute; /* Absolute positioning within card container */
+            top: -15px; /* Positioned above card content */
+            right: 10px; /* Right-aligned for visual balance */
+            font-family: 'Oswald', sans-serif; /* Display font for impact */
+            font-size: 6rem; /* Large scale for background effect */
+            font-weight: 700; /* Bold weight for prominence */
+            color: #d1d5db; /* Light gray for subtle watermark */
+            z-index: 0; /* Behind content but above background */
+            transition: all 0.3s ease; /* Smooth hover animations */
+            opacity: 0.5; /* Semi-transparent watermark effect */
+        }
+
+        /* Hover animation - watermark moves and changes opacity */
+        .group:hover .watermark-text::before {
+            transform: translateY(5px) scale(1.05); /* Subtle movement and scaling */
+            opacity: 0.35; /* More transparent on interaction */
+        }
+
+        /* Color-coded hover effects for different tool categories */
+        .watermark-text[data-color="blue"]:hover::before { color: #1d4ed8 !important; }
+        .watermark-text[data-color="green"]:hover::before { color: #15803d !important; }
+        .watermark-text[data-color="orange"]:hover::before { color: #ea580c !important; }
+        .watermark-text[data-color="purple"]:hover::before { color: #7e22ce !important; }
+        .watermark-text[data-color="yellow"]:hover::before { color: #ca8a04 !important; }
+        .watermark-text[data-color="red"]:hover::before { color: #dc2626 !important; }
+
+        /* Dark mode watermark adjustments for visibility */
+        .dark .watermark-text::before {
+            color: #374151; /* Darker gray for dark backgrounds */
+            opacity: 0.4; /* Slightly more visible in dark mode */
+        }
+        .dark .group:hover .watermark-text::before {
+            opacity: 0.3; /* Maintains hover effect in dark theme */
+        }
+  </style>
+
+    <!-- =========================================
+         CLIENT-SIDE JAVASCRIPT - APPLICATION LOGIC
+         ========================================= -->
+    <script>
+        // =========================================
+        // API CONFIGURATION - BACKEND ENDPOINT MANAGEMENT
+        // =========================================
+        // Dynamic API base URL - localhost for development, empty for production (relative URLs)
+        // CRITICAL: Update this for production deployment to match server domain
+        const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000' : '';
+
+        // =========================================
+        // AUTHENTICATION CONSTANTS - USER INTERFACE ASSETS
+        // =========================================
+        // Default user avatar - SVG data URI for fast loading without external requests
+        const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'%3E%3Ccircle cx='12' cy='12' r='12' fill='%23e0e7ff'/%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z' fill='%236366f1'/%3E%3C/svg%3E";
+
+        // =========================================
+        // DOM CONTENT LOADED - INITIALIZATION LOGIC
+        // =========================================
+        document.addEventListener("DOMContentLoaded", function() {
+            // =========================================
+            // THEME SYSTEM INITIALIZATION
+            // =========================================
+            // Load saved theme preference from localStorage, default to light mode
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('sun-icon').classList.add('hidden');
+                document.getElementById('moon-icon').classList.remove('hidden');
+            }
+
+            // =========================================
+            // THEME TOGGLE EVENT HANDLER
+            // =========================================
+            // Theme switcher button functionality with icon state management
+            document.getElementById('theme-toggle').addEventListener('click', function() {
+                const html = document.documentElement;
+                const sunIcon = document.getElementById('sun-icon');
+                const moonIcon = document.getElementById('moon-icon');
+
+                if (html.classList.contains('dark')) {
+                    // Switch to light mode
+                    html.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                } else {
+                    // Switch to dark mode
+                    html.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                }
+            });
+
+            // =========================================
+            // AUTHENTICATION STATE MANAGEMENT
+            // =========================================
+            // Check authentication status and render appropriate navbar
+            const token = localStorage.getItem("token");
+            const authSection = document.getElementById("auth-section");
+
+            // =========================================
+            // ROLE-BASED ACCESS CONTROL CHECKS
+            // =========================================
+            // Check for admin/manager privileges stored in sessionStorage
+            const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+            const isManager = sessionStorage.getItem('isManager') === 'true';
+
+            // =========================================
+            // ADMIN/MANAGER UI ADJUSTMENTS
+            // =========================================
+            // Hide message icon for admin/manager users (they don't need user messaging)
+            const messageIconBtn = document.getElementById('messageIconBtn');
+            if (isAdmin || isManager) {
+                if (messageIconBtn) messageIconBtn.style.display = 'none';
+      }
+
+            // =========================================
+            // ADMIN USER INTERFACE RENDERING
+            // =========================================
+            // Special navbar for admin users with gold license badge and admin panel access
+            if (isAdmin) {
+                authSection.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <!-- Admin Panel Access Button -->
+                        <a href="/admin.html" class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold transition shadow-lg">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
+                            Admin Panel
+                        </a>
+                        <!-- Gold License Badge - indicates full system access -->
+                        <div class="flex items-center gap-2 px-3 py-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                            <span class="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase">GOLD LICENSE</span>
+                        </div>
+                    </div>
+                `;
+            }
+            // =========================================
+            // MANAGER USER INTERFACE RENDERING
+            // =========================================
+            // Special navbar for manager users with silver license badge and manager panel access
+            else if (isManager) {
+                authSection.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <!-- Manager Panel Access Button -->
+                        <a href="/manager.html" class="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition shadow-lg">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
+                            Manager Panel
+                        </a>
+                        <!-- Silver License Badge - indicates elevated access level -->
+                        <div class="flex items-center gap-2 px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg">
+                            <span class="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">SILVER LICENSE</span>
+                        </div>
+                    </div>
+                `;
+            }
+            // =========================================
+            // AUTHENTICATED USER PROCESSING
+            // =========================================
+            // Check if regular user is authenticated and potentially promoted to manager
+            else if (token) {
+                const userId = localStorage.getItem("user_id");
+                checkUserManagerStatus(userId, authSection);
+            }
+            // =========================================
+            // UNAUTHENTICATED USER INTERFACE
+            // =========================================
+            // Show login/signup buttons for non-authenticated visitors
+            else {
+                authSection.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <!-- Login Link -->
+                        <a href="/login.html" class="font-display font-medium text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white uppercase tracking-wide transition text-sm">Log In</a>
+                        <!-- Sign Up Call-to-Action Button -->
+                        <a href="/signup.html" class="font-display bg-black dark:bg-gray-700 text-white px-6 py-2.5 uppercase tracking-wide text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-600 transition shadow-lg rounded-sm">Sign Up</a>
+                    </div>
+                `;
+            }
+        });
+
+        // =========================================
+        // PROFILE PHOTO LOADING FUNCTION
+        // =========================================
+        // Loads user profile photo from server with cache-busting timestamp
+        async function loadProfilePhoto() {
+            const userId = localStorage.getItem("user_id");
+            if (!userId) return;
+
+            try {
+                // Fetch user profile data from authentication endpoint
+                const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${userId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if(data.profile_photo_path) {
+                        // Add timestamp to prevent browser caching of updated photos
+                        const timestamp = new Date().getTime();
+                        document.getElementById('profileIcon').src = data.profile_photo_path + '?t=' + timestamp;
+                    }
+                }
+            } catch (err) {
+                // Silent error handling - profile photo is non-critical feature
+                console.warn('Failed to load profile photo:', err);
+            }
+        }
+
+        // =========================================
+        // USER MANAGER STATUS VERIFICATION
+        // =========================================
+        // Checks if a regular user has been promoted to manager status via database
+        async function checkUserManagerStatus(userId, authSection) {
+            try {
+                // Query user profile to check manager promotion status
+                const res = await fetch(`${API_BASE_URL}/auth/profile?user_id=${userId}`);
+                if (res.ok) {
+                    const data = await res.json();
+
+                    // =========================================
+                    // PROMOTED MANAGER DETECTION
+                    // =========================================
+                    if (data.is_manager) {
+                        // User has been promoted to manager - update session and UI
+                        sessionStorage.setItem('isUserManager', 'true');
+                        // Hide message icon for promoted managers
+                        const messageIconBtn = document.getElementById('messageIconBtn');
+                        if (messageIconBtn) messageIconBtn.style.display = 'none';
+
+                        // Render manager navbar for promoted user
+                        authSection.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <!-- Manager Panel Access -->
+                                <a href="/manager.html" class="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" /></svg>
+                                    Manager Panel
+                                </a>
+                                <!-- Silver License Badge -->
+                                <div class="flex items-center gap-2 px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg">
+                                    <span class="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase">SILVER LICENSE</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    // =========================================
+                    // REGULAR USER INTERFACE
+                    // =========================================
+                    else {
+                        // Standard user navbar with profile and logout
+                        authSection.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <!-- User Role Display -->
+                                <div class="text-right hidden sm:block">
+                                    <div class="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Operator</div>
+                                    <div class="text-sm font-bold text-gray-900 dark:text-gray-100 font-display uppercase tracking-wide">Engineer</div>
+                                </div>
+                                <!-- Profile Avatar with Click-to-Profile -->
+                                <img id="profileIcon" src="${DEFAULT_AVATAR}" class="w-10 h-10 rounded-lg border-2 border-gray-200 dark:border-gray-600 cursor-pointer hover:border-black dark:hover:border-white transition" onclick="window.location.href='/profile.html'">
+                                <!-- Logout Button -->
+                                <button onclick="logout()" class="ml-2 text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-400 transition p-2 border-l border-gray-200 dark:border-gray-600 pl-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                </button>
+                            </div>
+                        `;
+                        // Load user's profile photo
+                        loadProfilePhoto();
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to check user manager status:', err);
+                // =========================================
+                // ERROR FALLBACK - DEFAULT USER UI
+                // =========================================
+                // Show standard user interface if API call fails
+                authSection.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="text-right hidden sm:block">
+                            <div class="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Operator</div>
+                            <div class="text-sm font-bold text-gray-900 dark:text-gray-100 font-display uppercase tracking-wide">Engineer</div>
+                        </div>
+                        <img id="profileIcon" src="${DEFAULT_AVATAR}" class="w-10 h-10 rounded-lg border-2 border-gray-200 dark:border-gray-600 cursor-pointer hover:border-black dark:hover:border-white transition" onclick="window.location.href='/profile.html'">
+                        <button onclick="logout()" class="ml-2 text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-400 transition p-2 border-l border-gray-200 dark:border-gray-600 pl-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        </button>
+                    </div>
+                `;
+                loadProfilePhoto();
+            }
+        }
+
+        // =========================================
+        // USER LOGOUT FUNCTION
+        // =========================================
+        // Clears all authentication data and redirects to login page
+        function logout() {
+            // Clear all stored authentication and session data
+            localStorage.clear();
+            sessionStorage.clear();
+            // Redirect to login page to complete logout
+            window.location.href = "/login.html";
+        }
+
+        // =========================================
+        // TOOL ACCESS CONTROL FUNCTION
+        // =========================================
+        // Validates user permissions and license status before allowing tool access
+        function checkAccess(event, url) {
+            event.preventDefault();
+
+            // =========================================
+            // ADMIN/MANAGER BYPASS - FULL ACCESS
+            // =========================================
+            // Admin and Manager users have unrestricted access (Gold/Silver licenses)
+            const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+            const isManager = sessionStorage.getItem('isManager') === 'true';
+            const isUserManager = sessionStorage.getItem('isUserManager') === 'true';
+
+            if (isAdmin || isManager || isUserManager) {
+                console.log('Admin/Manager/User-Manager access - Full access granted');
+                window.location.href = url;
+                return;
+            }
+
+            // =========================================
+            // REGULAR USER VALIDATION
+            // =========================================
+            // Check authentication token and license status
+            const token = localStorage.getItem("token");
+            const isLicenseActive = localStorage.getItem("is_license_active") === "true";
+
+            // Redirect to login if not authenticated
+            if (!token) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            // Show license required message if license is inactive
+            if (!isLicenseActive) {
+                showLicenseMessage();
+                return;
+            }
+
+            // All checks passed - allow access to tool
+            window.location.href = url;
+        }
+
+        // =========================================
+        // LICENSE REQUIREMENT NOTIFICATION
+        // =========================================
+        // Displays modal overlay informing user about license requirements
+        function showLicenseMessage() {
+            // Remove any existing license message overlay
+            const existing = document.getElementById('license-message-overlay');
+            if (existing) existing.remove();
+
+            // =========================================
+            // LICENSE MODAL CREATION
+            // =========================================
+            // Create full-screen overlay with license requirement message
+            const overlay = document.createElement('div');
+            overlay.id = 'license-message-overlay';
+            overlay.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4';
+            overlay.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full p-8 text-center animate-[fadeIn_0.3s_ease-out]">
+                    <!-- Warning Icon -->
+                    <div class="w-20 h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <!-- Modal Title -->
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">License Required</h3>
+                    <!-- Modal Message -->
+                    <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                        You don't have an active license yet. Please contact us to get your license and then activate it from your profile page.
+                    </p>
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <!-- Request License Button - Opens message modal -->
+                        <button onclick="document.getElementById('license-message-overlay').remove(); openMessageModal('license')"
+                            class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                            Request License
+                        </button>
+                        <!-- Activate License Button - Links to profile -->
+                        <a href="/profile.html" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+                            Activate License
+                        </a>
+                    </div>
+                    <!-- Close Button -->
+                    <button onclick="document.getElementById('license-message-overlay').remove()"
+                        class="mt-6 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-medium">
+                        Close
+                    </button>
+                </div>
+            `;
+
+            // Add overlay to DOM and attach click-outside-to-close handler
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
+  </script>
+</head>
+
+<!-- =========================================
+     PAGE BODY - MAIN USER INTERFACE
+     ========================================= -->
+<body class="bg-page dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans border-t-4 border-dark flex flex-col min-h-screen">
+
+  <!-- =========================================
+       NAVIGATION BAR - SITE HEADER & CONTROLS
+       ========================================= -->
+  <!-- Sticky navigation bar with branding, messaging, theme toggle, and authentication -->
+  <nav class="bg-surface dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-20 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
+        <!-- =========================================
+             COMPANY LOGO & BRANDING
+             ========================================= -->
+        <!-- Responsive logo with fallback text display -->
+        <a href="/" class="flex items-center gap-3 group">
+            <!-- Primary logo image with error fallback -->
+            <img src="/assets/images/logo.png" alt="Premnath Engineering" class="w-[150px] md:w-[200px] h-[34px] md:h-[45px] rounded group-hover:scale-105 transition shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <!-- Fallback text logo when image fails to load -->
+            <div class="w-[150px] md:w-[200px] h-[34px] md:h-[45px] bg-black text-white hidden items-center justify-center font-display font-bold text-xl rounded group-hover:bg-blue-700 transition shadow-sm">P</div>
+        </a>
+
+        <!-- =========================================
+             NAVIGATION CONTROLS - RIGHT SIDE
+             ========================================= -->
+        <div class="flex items-center gap-4">
+            <!-- =========================================
+                 MESSAGES BUTTON - USER COMMUNICATION
+                 ========================================= -->
+            <!-- Message icon with unread badge indicator -->
+            <button type="button" onclick="openMessageModal(null, event)" id="messageIconBtn" class="relative p-2 rounded-lg bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 transition" title="Messages">
+                <!-- Message icon -->
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
+                <!-- Unread messages badge (hidden by default) -->
+                <span id="unreadBadge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
+            </button>
+
+            <!-- =========================================
+                 THEME TOGGLE BUTTON - DARK/LIGHT MODE
+                 ========================================= -->
+            <!-- Theme switcher with sun/moon icons -->
+            <button type="button" id="theme-toggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition">
+                <!-- Sun icon (light mode) -->
+                <svg id="sun-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <!-- Moon icon (dark mode) - hidden by default -->
+                <svg id="moon-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+
+            <!-- =========================================
+                 AUTHENTICATION SECTION - DYNAMIC USER UI
+                 ========================================= -->
+            <!-- Container for dynamically rendered authentication UI -->
+            <div id="auth-section"></div>
+        </div>
+    </div>
+  </nav>
+
+  <!-- =========================================
+       WELCOME SECTION - NEW USER ONBOARDING
+       ========================================= -->
+  <!-- Welcome banner for new users with quick start guide -->
+  <div id="welcome-section" class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 border-b border-gray-200 dark:border-gray-700 hidden">
+      <div class="px-6 py-8">
+          <div class="max-w-4xl mx-auto">
+              <div class="flex items-center justify-between">
+                  <div class="flex-1">
+                      <h3 class="text-2xl font-display font-bold text-gray-900 dark:text-white mb-2">
+                          🎉 Welcome to Premnath Engineering Calculator!
+                      </h3>
+                      <p class="text-gray-600 dark:text-gray-300 mb-4">
+                          Get started with our engineering tools. Choose any calculator below to begin your first calculation.
+                      </p>
+                      <div class="flex flex-wrap gap-3">
+                          <a href="#tools-grid" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                              </svg>
+                              Explore Tools
+                          </a>
+                          <a href="/documentation.html" class="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium transition">
+                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                              </svg>
+                              View Documentation
+                          </a>
+                          <button onclick="dismissWelcome()" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition">
+                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              Dismiss
+                          </button>
+                      </div>
+                  </div>
+                  <div class="hidden md:block ml-8">
+                      <div class="w-24 h-24 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                          <svg class="w-12 h-12 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- =========================================
+       QUICK START GUIDE - FIRST-TIME USER HELP
+       ========================================= -->
+  <!-- Collapsible quick start guide for new users -->
+  <div class="bg-surface dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div class="px-6 py-6">
+          <div class="max-w-4xl mx-auto">
+              <details class="group">
+                  <summary class="flex items-center justify-between cursor-pointer py-2">
+                      <h3 class="text-lg font-display font-semibold text-gray-900 dark:text-white">
+                          🚀 Quick Start Guide
+                      </h3>
+                      <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                  </summary>
+                  <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div class="flex items-center gap-3 mb-2">
+                              <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+                                  <span class="text-blue-600 dark:text-blue-400 font-bold text-sm">1</span>
+                              </div>
+                              <h4 class="font-semibold text-blue-900 dark:text-blue-100">Choose a Tool</h4>
+                          </div>
+                          <p class="text-sm text-blue-700 dark:text-blue-300">Select any engineering calculator from the grid below based on your needs.</p>
+                      </div>
+                      <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                          <div class="flex items-center gap-3 mb-2">
+                              <div class="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
+                                  <span class="text-green-600 dark:text-green-400 font-bold text-sm">2</span>
+                              </div>
+                              <h4 class="font-semibold text-green-900 dark:text-green-100">Enter Parameters</h4>
+                          </div>
+                          <p class="text-sm text-green-700 dark:text-green-300">Fill in the required engineering parameters and click Calculate.</p>
+                      </div>
+                      <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                          <div class="flex items-center gap-3 mb-2">
+                              <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center">
+                                  <span class="text-purple-600 dark:text-purple-400 font-bold text-sm">3</span>
+                              </div>
+                              <h4 class="font-semibold text-purple-900 dark:text-purple-100">Download Report</h4>
+                          </div>
+                          <p class="text-sm text-purple-700 dark:text-purple-300">Review results and download professional PDF reports instantly.</p>
+                      </div>
+                  </div>
+              </details>
+          </div>
+      </div>
+  </div>
+
+  <!-- =========================================
+       MODULES GRID - ENGINEERING TOOLS LAUNCHER
+       ========================================= -->
+  <!-- Main content area with responsive grid of engineering calculation tools -->
+  <main id="tools-grid" class="flex-grow py-12 px-6">
+      <!-- Tools header with search and filter options -->
+      <div class="max-w-7xl mx-auto mb-8">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                  <h2 class="text-3xl font-display font-bold text-gray-900 dark:text-white mb-2">Engineering Tools</h2>
+                  <p class="text-gray-600 dark:text-gray-400">Choose from our comprehensive suite of railway engineering calculators</p>
+              </div>
+              <div class="flex gap-2">
+                  <button onclick="showAllTools()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
+                      All Tools
+                  </button>
+                  <button onclick="showPopularTools()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition">
+                      Popular
+                  </button>
+              </div>
+          </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+
+          <!-- =========================================
+               1. HYDRAULIC MOTOR CALCULATOR (Blue Theme)
+               ========================================= -->
+          <!-- Tool card for hydraulic motor analysis with access control -->
+          <div onclick="checkAccess(event, '/calculator.html')"
+               class="group relative bg-white dark:bg-gray-800 rounded-md border-l-[6px] border-blue-700 shadow-sm hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 flex flex-col h-full overflow-hidden watermark-text cursor-pointer"
+               data-index="01" data-color="blue" title="Click to launch Hydraulic Motor Calculator">
+
+              <!-- Card Content Area -->
+              <div class="p-8 pb-4 flex-grow z-10">
+                  <div class="flex justify-between items-start">
+                      <!-- Tool Icon with Hover Effects -->
+                      <div class="w-[60px] h-[60px] bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-hover:bg-blue-700 group-hover:border-blue-700 group-hover:text-white text-blue-700">
+                          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+                      </div>
+                      <!-- Popular badge for frequently used tools -->
+                      <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Popular</span>
+                  </div>
+                  <!-- Tool Title -->
+                  <h3 class="font-display text-2xl text-gray-900 dark:text-gray-100 mb-3 group-hover:text-blue-700 transition-colors">Hydraulic Motor Calculator</h3>
+                  <!-- Enhanced Tool Description -->
+                  <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed font-light mb-4">
+                      Calculate pump displacement, flow rates, and motor requirements for hydraulic drive systems in locomotives and rail vehicles.
+                  </p>
+                  <!-- Use Cases -->
+                  <div class="space-y-2">
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Motor sizing & displacement</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Flow rate analysis</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Pressure optimization</span>
+                      </div>
+                  </div>
+              </div>
+              <!-- Enhanced Launch Button -->
+              <div class="px-8 pb-8 z-10 mt-auto">
+                  <div class="py-3.5 bg-transparent border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 font-display font-semibold uppercase tracking-widest text-xs rounded transition-all duration-200 flex items-center justify-center gap-2 group-hover:bg-blue-700 group-hover:border-blue-700 group-hover:text-white">
+                      Launch Tool
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </div>
+                  <!-- Tool tip for new users -->
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      Calculate hydraulic motor requirements
+                  </p>
+              </div>
+          </div>
+
+          <!-- =========================================
+               2. TRACTIVE EFFORT CALCULATOR (Green Theme)
+               ========================================= -->
+          <!-- Tool card for tractive effort analysis -->
+          <div onclick="checkAccess(event, '/tractive_effort_calculator.html')"
+               class="group relative bg-white dark:bg-gray-800 rounded-md border-l-[6px] border-green-700 shadow-sm hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 flex flex-col h-full overflow-hidden watermark-text cursor-pointer"
+               data-index="02" data-color="green" title="Click to launch Tractive Effort Calculator">
+
+              <div class="p-8 pb-4 flex-grow z-10">
+                  <div class="flex justify-between items-start">
+                      <div class="w-[60px] h-[60px] bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-hover:bg-green-700 group-hover:border-green-700 group-hover:text-white text-green-700">
+                          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                      </div>
+                      <!-- New tool badge -->
+                      <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Essential</span>
+                  </div>
+                  <h3 class="font-display text-2xl text-gray-900 dark:text-gray-100 mb-3 group-hover:text-green-700 transition-colors">Tractive Effort Calculator</h3>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed font-light mb-4">
+                      Calculate train horsepower requirements, electrical power consumption, and traction system performance for railway operations.
+                  </p>
+                  <!-- Use Cases -->
+                  <div class="space-y-2">
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Horsepower calculations</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>OHE current analysis</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Power system design</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="px-8 pb-8 z-10 mt-auto">
+                  <div class="py-3.5 bg-transparent border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 font-display font-semibold uppercase tracking-widest text-xs rounded transition-all duration-200 flex items-center justify-center gap-2 group-hover:bg-green-700 group-hover:border-green-700 group-hover:text-white">
+                      Launch Tool
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </div>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      Calculate train power requirements
+                  </p>
+              </div>
+          </div>
+
+          <!-- =========================================
+               3. LOAD DISTRIBUTION CALCULATOR (Orange Theme)
+               ========================================= -->
+          <!-- Tool card for wheel load distribution analysis -->
+          <div onclick="checkAccess(event, '/load_distribution_calculator.html')"
+               class="group relative bg-white dark:bg-gray-800 rounded-md border-l-[6px] border-orange-600 shadow-sm hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 flex flex-col h-full overflow-hidden watermark-text cursor-pointer"
+               data-index="03" data-color="orange">
+
+              <div class="p-8 pb-4 flex-grow z-10">
+                  <div class="flex justify-between items-start">
+                      <div class="w-[60px] h-[60px] bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-hover:bg-orange-600 group-hover:border-orange-600 group-hover:text-white text-orange-600">
+                          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>
+                      </div>
+                      <!-- Advanced badge -->
+                      <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Advanced</span>
+                  </div>
+                  <h3 class="font-display text-2xl text-gray-900 dark:text-gray-100 mb-3 group-hover:text-orange-600 transition-colors">Load Distribution Calculator</h3>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed font-light mb-4">
+                      Analyze wheel load balancing (Q1-Q4) and perform safety limit checks (ΔQ/Q) for optimal bogie performance and rail safety.
+                  </p>
+                  <!-- Use Cases -->
+                  <div class="space-y-2">
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Wheel load balancing</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Safety compliance checks</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Bogie optimization</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="px-8 pb-8 z-10 mt-auto">
+                  <div class="py-3.5 bg-transparent border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 font-display font-semibold uppercase tracking-widest text-xs rounded transition-all duration-200 flex items-center justify-center gap-2 group-hover:bg-orange-600 group-hover:border-orange-600 group-hover:text-white">
+                      Launch Tool
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </div>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      Analyze wheel load distribution
+                  </p>
+              </div>
+          </div>
+
+          <!-- =========================================
+               4. QMAX SAFETY CALCULATOR (Purple Theme)
+               ========================================= -->
+          <!-- Tool card for maximum vertical force analysis -->
+          <div onclick="checkAccess(event, '/qmax_calculator.html')"
+               class="group relative bg-white dark:bg-gray-800 rounded-md border-l-[6px] border-purple-700 shadow-sm hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 flex flex-col h-full overflow-hidden watermark-text cursor-pointer"
+               data-index="04" data-color="purple">
+
+              <div class="p-8 pb-4 flex-grow z-10">
+                  <div class="flex justify-between items-start">
+                      <div class="w-[60px] h-[60px] bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-hover:bg-purple-700 group-hover:border-purple-700 group-hover:text-white text-purple-700">
+                          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      </div>
+                      <!-- Safety badge -->
+                      <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Safety</span>
+                  </div>
+                  <h3 class="font-display text-2xl text-gray-900 dark:text-gray-100 mb-3 group-hover:text-purple-700 transition-colors">Qmax Safety Calculator</h3>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed font-light mb-4">
+                      Calculate maximum vertical forces and perform safety validation based on rail profile diameter and loading conditions.
+                  </p>
+                  <!-- Use Cases -->
+                  <div class="space-y-2">
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Maximum force analysis</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Rail safety validation</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Load limit assessment</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="px-8 pb-8 z-10 mt-auto">
+                  <div class="py-3.5 bg-transparent border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 font-display font-semibold uppercase tracking-widest text-xs rounded transition-all duration-200 flex items-center justify-center gap-2 group-hover:bg-purple-700 group-hover:border-purple-700 group-hover:text-white">
+                      Launch Tool
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </div>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      Calculate maximum vertical forces
+                  </p>
+              </div>
+          </div>
+
+          <!-- =========================================
+               5. BRAKING FORCE CALCULATOR (Yellow Theme)
+               ========================================= -->
+          <!-- Tool card for braking performance and safety validation -->
+          <div onclick="checkAccess(event, '/braking_calculator.html')"
+               class="group relative bg-white dark:bg-gray-800 rounded-md border-l-[6px] border-yellow-600 shadow-sm hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 flex flex-col h-full overflow-hidden watermark-text cursor-pointer"
+               data-index="05" data-color="yellow">
+
+              <div class="p-8 pb-4 flex-grow z-10">
+                  <div class="flex justify-between items-start">
+                      <div class="w-[60px] h-[60px] bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-hover:bg-yellow-800 group-hover:border-yellow-800 group-hover:text-white text-yellow-800">
+                          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      </div>
+                      <!-- Critical badge -->
+                      <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Critical</span>
+                  </div>
+                  <h3 class="font-display text-2xl text-gray-900 dark:text-gray-100 mb-3 group-hover:text-black dark:group-hover:text-white transition-colors">Braking Force Calculator</h3>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed font-light mb-4">
+                      Calculate stopping distances, validate braking force requirements, and ensure compliance with railway safety standards.
+                  </p>
+                  <!-- Use Cases -->
+                  <div class="space-y-2">
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Stopping distance analysis</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Braking system validation</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Safety compliance checks</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="px-8 pb-8 z-10 mt-auto">
+                  <div class="py-3.5 bg-transparent border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 font-display font-semibold uppercase tracking-widest text-xs rounded transition-all duration-200 flex items-center justify-center gap-2 group-hover:bg-gray-800 group-hover:border-gray-800 group-hover:text-white">
+                      Launch Tool
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </div>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      Calculate braking performance
+                  </p>
+              </div>
+          </div>
+
+          <!-- =========================================
+               6. VEHICLE PERFORMANCE ANALYZER (Red Theme)
+               ========================================= -->
+          <!-- Tool card for comprehensive vehicle performance analysis -->
+          <div onclick="checkAccess(event, '/vehicle_performance_calculator.html')"
+               class="group relative bg-white dark:bg-gray-800 rounded-md border-l-[6px] border-red-600 shadow-sm hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 flex flex-col h-full overflow-hidden watermark-text cursor-pointer"
+               data-index="06" data-color="red">
+
+              <div class="p-8 pb-4 flex-grow z-10">
+                  <div class="flex justify-between items-start">
+                      <div class="w-[60px] h-[60px] bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-hover:bg-red-600 group-hover:border-red-600 group-hover:text-white text-red-600">
+                          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+                      </div>
+                      <!-- Performance badge -->
+                      <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Performance</span>
+                  </div>
+                  <h3 class="font-display text-2xl text-gray-900 dark:text-gray-100 mb-3 group-hover:text-red-600 transition-colors">Vehicle Performance Analyzer</h3>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed font-light mb-4">
+                      Comprehensive shunting capability analysis with speed vs slope curves and torque performance graphs for complete vehicle assessment.
+                  </p>
+                  <!-- Use Cases -->
+                  <div class="space-y-2">
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Shunting capability analysis</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Performance curve generation</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Torque & speed optimization</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="px-8 pb-8 z-10 mt-auto">
+                  <div class="py-3.5 bg-transparent border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 font-display font-semibold uppercase tracking-widest text-xs rounded transition-all duration-200 flex items-center justify-center gap-2 group-hover:bg-red-600 group-hover:border-red-600 group-hover:text-white">
+                      Launch Tool
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </div>
+                  <p class="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      Analyze vehicle performance
+                  </p>
+              </div>
+          </div>
+
+      </div>
+  </main>
+
+  <!-- =========================================
+       SITE FOOTER - LEGAL & NAVIGATION LINKS
+       ========================================= -->
+  <!-- Footer with copyright, legal links, and site navigation -->
+  <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto py-8">
+      <div class="px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <!-- Copyright Notice -->
+          <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">© 2024 Premnath Engineering Works • All rights reserved</p>
+          <!-- Legal & Support Links -->
+          <nav class="flex flex-wrap gap-4 mt-2">
+            <a href="/privacy-policy.html" class="text-xs text-blue-600 hover:underline">Privacy Policy</a>
+            <a href="/terms.html" class="text-xs text-blue-600 hover:underline">Terms</a>
+            <a href="/faq.html" class="text-xs text-blue-600 hover:underline">FAQ</a>
+            <a href="/documentation.html" class="text-xs text-blue-600 hover:underline">Documentation</a>
+            <a href="/disclaimer.html" class="text-xs text-blue-600 hover:underline">Disclaimer</a>
+          </nav>
+      </div>
+  </footer>
+
+  <!-- =========================================
+       MESSAGE MODAL - USER-ADMIN COMMUNICATION SYSTEM
+       ========================================= -->
+  <!-- Modal overlay for messaging system with backdrop blur effect -->
+  <div id="messageModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[9999] p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col animate-[fadeIn_0.2s_ease-out]">
+      <!-- =========================================
+           MODAL HEADER - TITLE AND CLOSE BUTTON
+           ========================================= -->
+      <div class="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <!-- Message icon in header -->
+          <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+          </svg>
+          Messages
+        </h2>
+        <!-- Close button with hover effects -->
+        <button onclick="closeMessageModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- =========================================
+           MESSAGE TABS - NAVIGATION BETWEEN MESSAGE VIEWS
+           ========================================= -->
+      <div class="flex border-b border-gray-200 dark:border-gray-700">
+        <!-- New Message Tab - For composing new messages -->
+        <button onclick="switchMessageTab('new')" id="tabNew" class="flex-1 py-3 px-4 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/20 transition">
+          New Message
+        </button>
+        <!-- Unread Messages Tab - Shows only unread messages -->
+        <button onclick="switchMessageTab('unread')" id="tabUnread" class="flex-1 py-3 px-4 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition relative">
+          Unread
+          <!-- Badge showing unread message count -->
+          <span id="unreadTabBadge" class="hidden absolute top-1 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+        </button>
+        <!-- All Messages Tab - Shows complete message history -->
+        <button onclick="switchMessageTab('all')" id="tabAll" class="flex-1 py-3 px-4 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+          All Messages
+        </button>
+      </div>
+
+      <!-- =========================================
+           TAB CONTENT CONTAINER - DYNAMIC CONTENT AREA
+           ========================================= -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- =========================================
+             NEW MESSAGE TAB - MESSAGE COMPOSITION FORM
+             ========================================= -->
+        <div id="contentNew" class="p-5">
+          <!-- Quick option buttons for common message types -->
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Quick options:</p>
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <!-- License Request Option -->
+            <button onclick="selectQuickOption('license')" class="quick-option p-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-left hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition group">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                <span class="font-medium text-gray-700 dark:text-gray-300">Want License Key</span>
+              </div>
+            </button>
+            <!-- Help Request Option -->
+            <button onclick="selectQuickOption('help')" class="quick-option p-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-left hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition group">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span class="font-medium text-gray-700 dark:text-gray-300">License / Other Help</span>
+              </div>
+            </button>
+            <!-- Suggestion Option -->
+            <button onclick="selectQuickOption('suggestion')" class="quick-option p-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-left hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition group">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <span class="font-medium text-gray-700 dark:text-gray-300">Calculation Suggestion</span>
+              </div>
+            </button>
+            <!-- Error Report Option -->
+            <button onclick="selectQuickOption('error')" class="quick-option p-3 border-2 border-gray-200 dark:border-gray-600 rounded-lg text-left hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition group">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="font-medium text-gray-700 dark:text-gray-300">Report Error</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- =========================================
+               MESSAGE COMPOSITION FORM
+               ========================================= -->
+          <div class="space-y-4">
+            <!-- Subject Input Field -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Subject</label>
+              <input type="text" id="msgSubject" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="Enter subject...">
+            </div>
+            <!-- Message Content Textarea -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label>
+              <textarea id="msgContent" rows="4" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none" placeholder="Type your message..."></textarea>
+            </div>
+            <!-- File Attachment Section -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Attach File (optional)</label>
+              <div class="relative">
+                <!-- Hidden file input -->
+                <input type="file" id="msgFile" class="hidden" onchange="updateFileName()">
+                <!-- File selection button -->
+                <button onclick="document.getElementById('msgFile').click()" class="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 hover:border-blue-500 hover:text-blue-500 transition flex items-center justify-center gap-2">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                  <span id="fileNameDisplay">Choose file to attach</span>
+                </button>
+              </div>
+            </div>
+            <!-- Send Message Button -->
+            <button onclick="sendMessage()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              Send Message
+            </button>
+          </div>
+        </div>
+
+        <!-- =========================================
+             UNREAD MESSAGES TAB - UNREAD MESSAGE LIST
+             ========================================= -->
+        <div id="contentUnread" class="p-5 hidden">
+          <div id="unreadMessagesList" class="space-y-3">
+            <!-- Loading state placeholder -->
+            <div class="text-center py-10 text-gray-500 dark:text-gray-400">
+              <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+              <p>Loading messages...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================
+             ALL MESSAGES TAB - COMPLETE MESSAGE HISTORY
+             ========================================= -->
+        <div id="contentAll" class="p-5 hidden">
+          <div id="allMessagesList" class="space-y-3">
+            <!-- Loading state placeholder -->
+            <div class="text-center py-10 text-gray-500 dark:text-gray-400">
+              <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+              <p>Loading messages...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================
+       MESSAGE DETAIL MODAL - INDIVIDUAL MESSAGE VIEW
+       ========================================= -->
+  <!-- Secondary modal for viewing individual message details -->
+  <div id="messageDetailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[10000] p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col animate-[fadeIn_0.2s_ease-out]">
+      <!-- Detail Modal Header -->
+      <div class="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
+        <h3 id="detailSubject" class="text-lg font-bold text-gray-900 dark:text-white">Message Details</h3>
+        <!-- Close button -->
+        <button onclick="closeMessageDetail()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- Message Content Area -->
+      <div class="flex-1 overflow-y-auto p-5">
+        <!-- Message Metadata -->
+        <div class="flex items-center gap-2 mb-4">
+          <span id="detailFrom" class="text-sm px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full font-medium"></span>
+          <span id="detailTime" class="text-xs text-gray-500 dark:text-gray-400"></span>
+        </div>
+        <!-- Message Content -->
+        <div id="detailContent" class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></div>
+        <!-- File Attachment Display -->
+        <div id="detailAttachment" class="mt-4 hidden">
+          <a id="detailFileLink" href="#" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+            <span id="detailFileName"></span>
+          </a>
+        </div>
+      </div>
+      <!-- Reply Action Button -->
+      <div class="p-5 border-t border-gray-200 dark:border-gray-700">
+        <button onclick="replyToMessage()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+          Reply
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================
+       CLIENT-SIDE JAVASCRIPT - MESSAGE SYSTEM FUNCTIONS
+       ========================================= -->
+  <script>
+    // =========================================
+    // MESSAGE SYSTEM GLOBAL VARIABLES
+    // =========================================
+    // Track current user and message context for modal operations
+    let currentUserId = null; // Currently logged-in user's ID from localStorage
+    let currentMessageId = null; // ID of message currently being viewed in detail modal
+
+    // =========================================
+    // UNREAD MESSAGE COUNT MANAGEMENT
+    // =========================================
+    // Fetches and displays unread message count in navbar badge and modal tabs
+    async function loadUnreadCount() {
+      // =========================================
+      // AUTHENTICATION CHECK
+      // =========================================
+      // Require valid authentication token to access messaging
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        // Get current user ID from localStorage (set during login)
+        currentUserId = localStorage.getItem('user_id');
+        if (!currentUserId) return;
+
+        // =========================================
+        // API CALL - FETCH UNREAD COUNT
+        // =========================================
+        // Call backend API to get unread message count for current user
+        const response = await fetch(`/messages/user/${currentUserId}/unread-count`);
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // =========================================
+          // UI UPDATE - BADGE DISPLAY
+          // =========================================
+          // Update navbar message icon badge and modal tab badge
+          const badge = document.getElementById('unreadBadge');
+          const tabBadge = document.getElementById('unreadTabBadge');
+
+          if (data.unread_count > 0) {
+            // Show badge with count (max 9+ for space constraints)
+            badge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
+            badge.classList.remove('hidden');
+            // Also show in modal tab if available
+            if (tabBadge) {
+              tabBadge.textContent = data.unread_count;
+              tabBadge.classList.remove('hidden');
+            }
+          } else {
+            // Hide badges when no unread messages
+            badge.classList.add('hidden');
+            if (tabBadge) tabBadge.classList.add('hidden');
+          }
+        }
+      } catch (error) {
+        // Log errors but don't show to user (non-critical feature)
+        console.error('Error loading unread count:', error);
+      }
+    }
+
+    // =========================================
+    // MESSAGE MODAL OPENING FUNCTION
+    // =========================================
+    // Opens the message modal with authentication and preset option support
+    function openMessageModal(preset = null, event = null) {
+      // Prevent default link behavior if called from click event
+      if (event) event.preventDefault();
+
+      // =========================================
+      // AUTHENTICATION VALIDATION
+      // =========================================
+      // Redirect to login if user is not authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      // Get user ID from localStorage (stored during login process)
+      currentUserId = localStorage.getItem('user_id');
+
+      if (!currentUserId) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      console.log('Current user ID:', currentUserId);
+
+      // =========================================
+      // MODAL DISPLAY MANAGEMENT
+      // =========================================
+      // Show modal with flexbox centering and remove hidden class
+      const modal = document.getElementById('messageModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        console.log('Message modal opened');
+      } else {
+        console.error('Message modal not found!');
+      }
+
+      // =========================================
+      // TAB INITIALIZATION
+      // =========================================
+      // Start with new message composition tab
+      switchMessageTab('new');
+
+      // =========================================
+      // PRESET OPTION HANDLING
+      // =========================================
+      // Auto-select quick option if preset parameter provided
+      if (preset === 'license') {
+        selectQuickOption('license');
+      }
+    }
+
+    // =========================================
+    // MESSAGE MODAL CLOSING FUNCTION
+    // =========================================
+    // Closes message modal and clears form data
+    function closeMessageModal() {
+      // Hide modal by adding hidden class and removing flex display
+      document.getElementById('messageModal').classList.add('hidden');
+      document.getElementById('messageModal').classList.remove('flex');
+      // Clear form to prevent data carry-over
+      clearMessageForm();
+    }
+
+    // =========================================
+    // MESSAGE FORM CLEARING FUNCTION
+    // =========================================
+    // Resets message composition form to clean state
+    function clearMessageForm() {
+      // Clear all form inputs
+      document.getElementById('msgSubject').value = '';
+      document.getElementById('msgContent').value = '';
+      document.getElementById('msgFile').value = '';
+      // Reset file display text
+      document.getElementById('fileNameDisplay').textContent = 'Choose file to attach';
+      // Clear visual selection state from quick option buttons
+      document.querySelectorAll('.quick-option').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+      });
+    }
+
+    // =========================================
+    // MESSAGE TAB SWITCHING FUNCTION
+    // =========================================
+    // Handles navigation between new message, unread, and all messages tabs
+    function switchMessageTab(tab) {
+      // =========================================
+      // TAB UI STATE MANAGEMENT
+      // =========================================
+      // Update visual state for all three tabs
+      ['new', 'unread', 'all'].forEach(t => {
+        const tabBtn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        const content = document.getElementById(`content${t.charAt(0).toUpperCase() + t.slice(1)}`);
+
+        if (t === tab) {
+          // Active tab styling
+          tabBtn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20');
+          tabBtn.classList.remove('text-gray-500', 'dark:text-gray-400');
+          content.classList.remove('hidden');
+        } else {
+          // Inactive tab styling
+          tabBtn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20');
+          tabBtn.classList.add('text-gray-500', 'dark:text-gray-400');
+          content.classList.add('hidden');
+        }
+      });
+
+      // =========================================
+      // CONTENT LOADING
+      // =========================================
+      // Load appropriate message list when switching to list tabs
+      if (tab === 'unread') loadMessages('unread');
+      if (tab === 'all') loadMessages('all');
+    }
+
+    // =========================================
+    // QUICK OPTION SELECTION FUNCTION
+    // =========================================
+    // Auto-fills message form with predefined templates for common scenarios
+    function selectQuickOption(option) {
+      // =========================================
+      // VISUAL SELECTION CLEARING
+      // =========================================
+      // Remove selection state from all quick option buttons
+      document.querySelectorAll('.quick-option').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+      });
+
+      // =========================================
+      // PREDEFINED CONTENT TEMPLATES
+      // =========================================
+      // Subject lines for different message types
+      const subjects = {
+        'license': 'Request for License Key',
+        'help': 'License / Other Help Required',
+        'suggestion': 'Calculation Suggestion',
+        'error': 'Error Report'
+      };
+
+      // Message content templates with placeholders for user input
+      const messages = {
+        'license': 'Hi,\n\nI would like to request a license key for accessing the engineering calculation tools.\n\nPlease let me know the process and requirements.\n\nThank you.',
+        'help': 'Hi,\n\nI need assistance with:\n\n[Please describe your issue here]\n\nThank you.',
+        'suggestion': 'Hi,\n\nI have a suggestion for the calculation tools:\n\n[Please describe your suggestion here]\n\nThank you.',
+        'error': 'Hi,\n\nI encountered an error:\n\nTool: [Tool name]\nError: [Error description]\nSteps to reproduce: [Steps]\n\nThank you.'
+      };
+
+      // =========================================
+      // FORM AUTO-FILLING
+      // =========================================
+      // Populate form fields with selected template
+      document.getElementById('msgSubject').value = subjects[option] || '';
+      document.getElementById('msgContent').value = messages[option] || '';
+
+      // =========================================
+      // VISUAL FEEDBACK
+      // =========================================
+      // Highlight selected quick option button
+      event.target.closest('.quick-option').classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+    }
+
+    // =========================================
+    // FILE NAME DISPLAY UPDATE FUNCTION
+    // =========================================
+    // Updates the file attachment display when user selects a file
+    function updateFileName() {
+      const file = document.getElementById('msgFile').files[0];
+      if (file) {
+        // Show selected filename
+        document.getElementById('fileNameDisplay').textContent = file.name;
+      } else {
+        // Reset to default text if no file selected
+        document.getElementById('fileNameDisplay').textContent = 'Choose file to attach';
+      }
+    }
+
+    // =========================================
+    // MESSAGE SENDING FUNCTION
+    // =========================================
+    // Handles message submission with optional file attachment
+    async function sendMessage() {
+      // =========================================
+      // AUTHENTICATION VALIDATION
+      // =========================================
+      // Ensure user is logged in before sending
+      if (!currentUserId) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      // =========================================
+      // FORM DATA EXTRACTION
+      // =========================================
+      // Get form values and validate required fields
+      const subject = document.getElementById('msgSubject').value.trim();
+      const content = document.getElementById('msgContent').value.trim();
+      const file = document.getElementById('msgFile').files[0];
+
+      // Require message content (subject is optional)
+      if (!content) {
+        showToast('Please enter a message', 'error');
+        return;
+      }
+
+      try {
+        let response;
+
+        // =========================================
+        // FILE ATTACHMENT HANDLING
+        // =========================================
+        // Use different API endpoints for messages with/without files
+        if (file) {
+          // =========================================
+          // MULTIPART FORM DATA SUBMISSION
+          // =========================================
+          // Create FormData for file upload
+          const formData = new FormData();
+          formData.append('sender_id', currentUserId);
+          formData.append('content', content);
+          if (subject) formData.append('subject', subject);
+          formData.append('file', file);
+
+          // Send to file upload endpoint
+          response = await fetch('/messages/send-with-file', {
+            method: 'POST',
+            body: formData
+          });
+        } else {
+          // =========================================
+          // JSON PAYLOAD SUBMISSION
+          // =========================================
+          // Send JSON payload for text-only messages
+          response = await fetch('/messages/send', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              sender_id: parseInt(currentUserId),
+              content: content,
+              subject: subject || null
+            })
+          });
+        }
+
+        // =========================================
+        // RESPONSE HANDLING
+        // =========================================
+        if (response.ok) {
+          // Success feedback and UI cleanup
+          showToast('Message sent successfully!', 'success');
+          clearMessageForm();
+          closeMessageModal();
+        } else {
+          // Error handling with backend error message
+          const error = await response.json();
+          showToast(error.detail || 'Failed to send message', 'error');
+        }
+      } catch (error) {
+        // Network or unexpected errors
+        console.error('Error sending message:', error);
+        showToast('Failed to send message', 'error');
+      }
+    }
+
+    // =========================================
+    // MESSAGE LIST LOADING FUNCTION
+    // =========================================
+    // Loads and displays message lists for unread/all message tabs
+    async function loadMessages(type) {
+      // =========================================
+      // AUTHENTICATION CHECK
+      // =========================================
+      if (!currentUserId) return;
+
+      // =========================================
+      // UI ELEMENT SELECTION
+      // =========================================
+      // Determine which list container to update
+      const listId = type === 'unread' ? 'unreadMessagesList' : 'allMessagesList';
+      const list = document.getElementById(listId);
+
+      try {
+        // =========================================
+        // API CALL - FETCH USER MESSAGES
+        // =========================================
+        const response = await fetch(`/messages/user/${currentUserId}`);
+
+        if (response.ok) {
+          const messages = await response.json();
+
+          // =========================================
+          // MESSAGE FILTERING
+          // =========================================
+          let filteredMessages = messages;
+
+          // Filter for unread admin messages only
+          if (type === 'unread') {
+            filteredMessages = messages.filter(m => !m.is_read && m.is_from_admin);
+          }
+
+          // =========================================
+          // EMPTY STATE HANDLING
+          // =========================================
+          if (filteredMessages.length === 0) {
+            list.innerHTML = `
+              <div class="text-center py-10 text-gray-500 dark:text-gray-400">
+                <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                <p>${type === 'unread' ? 'No unread messages' : 'No messages yet'}</p>
+              </div>
+            `;
+            return;
+          }
+
+          // =========================================
+          // MESSAGE LIST RENDERING
+          // =========================================
+          // Generate HTML for each message in the filtered list
+          list.innerHTML = filteredMessages.map(msg => `
+            <div onclick="openMessageDetail(${msg.id})" class="p-4 border ${msg.is_read ? 'border-gray-200 dark:border-gray-700' : 'border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20'} rounded-xl cursor-pointer hover:shadow-md transition">
+              <div class="flex items-start justify-between mb-2">
+                <!-- Message sender badge -->
+                <span class="text-xs px-2 py-1 ${msg.is_from_admin ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'} rounded-full font-medium">
+                  ${msg.is_from_admin ? 'Admin' : 'You'}
+                </span>
+                <!-- Formatted timestamp -->
+                <span class="text-xs text-gray-500 dark:text-gray-400">${formatDate(msg.created_at)}</span>
+              </div>
+              <!-- Message subject -->
+              <h4 class="font-semibold text-gray-900 dark:text-white mb-1">${msg.subject || 'No Subject'}</h4>
+              <!-- Message preview (truncated) -->
+              <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">${msg.content}</p>
+              <!-- File attachment indicator -->
+              ${msg.file_name ? `<div class="mt-2 flex items-center gap-1 text-xs text-gray-500"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>${msg.file_name}</div>` : ''}
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        // Error state display
+        console.error('Error loading messages:', error);
+        list.innerHTML = `
+          <div class="text-center py-10 text-red-500">
+            <p>Failed to load messages</p>
+          </div>
+        `;
+      }
+    }
+
+    // =========================================
+    // MESSAGE DETAIL VIEW FUNCTION
+    // =========================================
+    // Opens detailed view of a specific message
+    async function openMessageDetail(messageId) {
+      // =========================================
+      // AUTHENTICATION CHECK
+      // =========================================
+      if (!currentUserId) return;
+
+      // Store current message ID for reply functionality
+      currentMessageId = messageId;
+
+      try {
+        // =========================================
+        // API CALL - FETCH MESSAGE DETAILS
+        // =========================================
+        const response = await fetch(`/messages/user/${currentUserId}`);
+
+        if (response.ok) {
+          const messages = await response.json();
+          // Find the specific message by ID
+          const msg = messages.find(m => m.id === messageId);
+
+          if (msg) {
+            // =========================================
+            // DETAIL MODAL POPULATION
+            // =========================================
+            // Fill modal with message data
+            document.getElementById('detailSubject').textContent = msg.subject || 'No Subject';
+            document.getElementById('detailFrom').textContent = msg.is_from_admin ? 'From: Admin' : 'From: You';
+            document.getElementById('detailTime').textContent = formatDate(msg.created_at);
+            document.getElementById('detailContent').textContent = msg.content;
+
+            // =========================================
+            // FILE ATTACHMENT HANDLING
+            // =========================================
+            if (msg.file_name && msg.file_path) {
+              // Show attachment download link
+              document.getElementById('detailAttachment').classList.remove('hidden');
+              document.getElementById('detailFileLink').href = msg.file_path;
+              document.getElementById('detailFileName').textContent = msg.file_name;
+            } else {
+              // Hide attachment section if no file
+              document.getElementById('detailAttachment').classList.add('hidden');
+            }
+
+            // =========================================
+            // MODAL DISPLAY
+            // =========================================
+            document.getElementById('messageDetailModal').classList.remove('hidden');
+            document.getElementById('messageDetailModal').classList.add('flex');
+
+            // =========================================
+            // READ STATUS UPDATE
+            // =========================================
+            // Mark message as read if it's from admin and unread
+            if (!msg.is_read && msg.is_from_admin) {
+              await fetch(`/messages/mark-read/${messageId}`, {
+                method: 'PUT'
+              });
+              // Refresh unread count in UI
+              loadUnreadCount();
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading message detail:', error);
+      }
+    }
+
+    // =========================================
+    // MESSAGE DETAIL MODAL CLOSING FUNCTION
+    // =========================================
+    // Closes the message detail modal
+    function closeMessageDetail() {
+      document.getElementById('messageDetailModal').classList.add('hidden');
+      document.getElementById('messageDetailModal').classList.remove('flex');
+      currentMessageId = null;
+    }
+
+    // =========================================
+    // MESSAGE REPLY FUNCTION
+    // =========================================
+    // Switches to compose tab with reply context
+    function replyToMessage() {
+      // Close detail modal
+      closeMessageDetail();
+      // Switch to new message tab
+      switchMessageTab('new');
+      // Pre-fill subject with "Re:" prefix
+      document.getElementById('msgSubject').value = 'Re: ' + (document.getElementById('detailSubject').textContent || '');
+      // Focus on message content for immediate typing
+      document.getElementById('msgContent').focus();
+    }
+
+    // =========================================
+    // DATE FORMATTING UTILITY FUNCTION
+    // =========================================
+    // Converts ISO date strings to user-friendly relative/absolute timestamps
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = now - date;
+
+      // Extract time components for display
+      const timeStr = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const dateStr = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+
+      // =========================================
+      // RELATIVE TIME FORMATTING
+      // =========================================
+      if (diff < 60000) return 'Just now'; // Less than 1 minute
+      if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`; // Less than 1 hour
+      if (diff < 86400000) return `Today, ${timeStr}`; // Today
+      if (diff < 172800000) return `Yesterday, ${timeStr}`; // Yesterday
+
+      // =========================================
+      // ABSOLUTE TIME FORMATTING
+      // =========================================
+      // For older messages, show date and time
+      return `${dateStr}, ${timeStr}`;
+    }
+
+    // =========================================
+    // TOAST NOTIFICATION FUNCTION
+    // =========================================
+    // Displays temporary success/error/info messages to user
+    function showToast(message, type = 'info') {
+      // =========================================
+      // EXISTING TOAST CLEANUP
+      // =========================================
+      // Remove any existing toast to prevent stacking
+      const existing = document.getElementById('toast-notification');
+      if (existing) existing.remove();
+
+      // =========================================
+      // TOAST COLOR SCHEME
+      // =========================================
+      // Different colors for different message types
+      const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500'
+      };
+
+      // =========================================
+      // TOAST ELEMENT CREATION
+      // =========================================
+      const toast = document.createElement('div');
+      toast.id = 'toast-notification';
+      toast.className = `fixed bottom-5 right-5 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-[10001] animate-[fadeIn_0.3s_ease-out]`;
+      toast.textContent = message;
+
+      // =========================================
+      // TOAST DISPLAY AND AUTO-REMOVAL
+      // =========================================
+      document.body.appendChild(toast);
+      // Auto-remove after 3 seconds
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // =========================================
+    // PAGE LOAD EVENT HANDLERS
+    // =========================================
+    // Initialize message system when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load initial unread count
+      loadUnreadCount();
+      // Set up periodic refresh every 30 seconds
+      setInterval(loadUnreadCount, 30000);
+    });
+
+    // =========================================
+    // KEYBOARD EVENT HANDLERS
+    // =========================================
+    // Global keyboard shortcuts for modal management
+    document.addEventListener('keydown', function(e) {
+      // ESC key closes both modals
+      if (e.key === 'Escape') {
+        closeMessageModal();
+        closeMessageDetail();
+      }
+    });
+
+    // =========================================
+    // MODAL OVERLAY CLICK HANDLERS
+    // =========================================
+    // Close modals when clicking on overlay background
+    document.getElementById('messageModal').addEventListener('click', function(e) {
+      // Only close if clicking the overlay itself, not its contents
+      if (e.target === this) closeMessageModal();
+    });
+
+    // =========================================
+    // WELCOME SECTION MANAGEMENT
+    // =========================================
+    // Show welcome section for new users
+    function showWelcomeSection() {
+      const welcomeSection = document.getElementById('welcome-section');
+      if (welcomeSection) {
+        welcomeSection.classList.remove('hidden');
+        // Auto-hide after 30 seconds
+        setTimeout(() => {
+          if (!welcomeSection.classList.contains('hidden')) {
+            dismissWelcome();
+          }
+        }, 30000);
+      }
+    }
+
+    // Dismiss welcome section
+    function dismissWelcome() {
+      const welcomeSection = document.getElementById('welcome-section');
+      if (welcomeSection) {
+        welcomeSection.classList.add('hidden');
+        // Remember user preference
+        localStorage.setItem('welcomeDismissed', 'true');
+      }
+    }
+
+    // =========================================
+    // TOOL FILTERING FUNCTIONS
+    // =========================================
+    // Show all tools (default view)
+    function showAllTools() {
+      const tools = document.querySelectorAll('[data-index]');
+      tools.forEach(tool => {
+        tool.style.display = 'flex';
+      });
+      updateToolButtons('all');
+    }
+
+    // Show popular tools only
+    function showPopularTools() {
+      const tools = document.querySelectorAll('[data-index]');
+      const popularIndices = ['01', '02', '03', '04']; // Hydraulic, Tractive, Load Distribution, Qmax
+
+      tools.forEach(tool => {
+        const index = tool.getAttribute('data-index');
+        if (popularIndices.includes(index)) {
+          tool.style.display = 'flex';
+        } else {
+          tool.style.display = 'none';
+        }
+      });
+      updateToolButtons('popular');
+    }
+
+    // Update filter button states
+    function updateToolButtons(activeFilter) {
+      const allBtn = document.querySelector('button[onclick="showAllTools()"]');
+      const popularBtn = document.querySelector('button[onclick="showPopularTools()"]');
+
+      if (allBtn && popularBtn) {
+        // Reset all buttons to default style
+        allBtn.className = 'px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition';
+        popularBtn.className = 'px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition';
+
+        // Highlight active button
+        if (activeFilter === 'all') {
+          allBtn.className = 'px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition';
+        } else if (activeFilter === 'popular') {
+          popularBtn.className = 'px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition';
+        }
+      }
+    }
+
+    // =========================================
+    // ENHANCED PAGE INITIALIZATION
+    // =========================================
+    // Enhanced page load event handlers
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load initial unread count
+      loadUnreadCount();
+      // Set up periodic refresh every 30 seconds
+      setInterval(loadUnreadCount, 30000);
+
+      // Show welcome section for new users (if not dismissed before)
+      if (!localStorage.getItem('welcomeDismissed')) {
+        setTimeout(showWelcomeSection, 2000); // Show after 2 seconds
+      }
+
+      // Add tooltips to tool cards
+      const toolCards = document.querySelectorAll('[data-index]');
+      toolCards.forEach(card => {
+        const title = card.querySelector('h3').textContent;
+        card.setAttribute('title', `Click to launch ${title}`);
+      });
+    });
+
+  </script>
+
+</body>
+</html>

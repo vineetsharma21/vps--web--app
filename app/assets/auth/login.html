@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<!-- HTML5 document type declaration - tells browser this is HTML5 -->
+<html lang="en">
+<!-- Root element with English language attribute for accessibility and SEO -->
+<head>
+  <!-- Document metadata section -->
+  <meta charset="UTF-8">
+  <!-- Character encoding - supports all languages and special characters -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Responsive design - adjusts to screen size, prevents zoom on mobile -->
+  <title>Login - Premnath Engineering</title>
+  <!-- Page title shown in browser tab -->
+
+  <!-- Tailwind CSS framework loaded from CDN for utility-first styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind configuration for custom theme -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',  // Enable dark mode with 'dark' class toggle
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Roboto', 'sans-serif'],     // Default font family
+            display: ['Oswald', 'sans-serif']    // Heading font family
+          },
+          colors: {
+            page: '#f0f2f5',      // Light background color
+            surface: '#ffffff',   // White surface color
+            dark: '#212529'       // Dark text color
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts for Oswald and Roboto typefaces -->
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS styles for watermark and toast notifications -->
+  <style>
+    /* Watermark styling - subtle background text for branding */
+    .watermark {
+      position: fixed;           /* Fixed position relative to viewport */
+      top: 50%; left: 50%;       /* Center the watermark */
+      transform: translate(-50%, -50%) rotate(-45deg);  /* Center and rotate */
+      font-size: 120px;          /* Large text size */
+      color: rgba(0, 0, 0, 0.05); /* Very light gray color */
+      z-index: -1;               /* Behind all content */
+      pointer-events: none;       /* Doesn't interfere with clicks */
+      font-weight: bold;         /* Bold text */
+      font-family: 'Oswald', sans-serif;  /* Oswald font */
+      text-transform: uppercase;  /* All caps */
+    }
+
+    /* Toast notification container - positioned notifications */
+    .toast-container {
+      position: fixed;           /* Fixed position */
+      top: 20px; right: 20px;    /* Top-right corner */
+      z-index: 9999;             /* Above all content */
+      display: flex;             /* Flexbox layout */
+      flex-direction: column;    /* Vertical stacking */
+      gap: 10px;                 /* Space between toasts */
+    }
+
+    /* Individual toast notification styling */
+    .toast {
+      padding: 14px 20px;        /* Internal spacing */
+      border-radius: 8px;        /* Rounded corners */
+      color: white;              /* White text */
+      font-weight: 500;          /* Medium font weight */
+      animation: slideIn 0.3s ease;  /* Slide in animation */
+      display: flex;             /* Flexbox layout */
+      align-items: center;       /* Center vertically */
+      gap: 10px;                 /* Space between icon and text */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);  /* Drop shadow */
+      max-width: 350px;          /* Maximum width */
+    }
+
+    /* Success toast styling - green gradient */
+    .toast.success { background: linear-gradient(135deg, #10b981, #059669); }
+    /* Error toast styling - red gradient */
+    .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    /* Warning toast styling - orange gradient */
+    .toast.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    /* Info toast styling - blue gradient */
+    .toast.info { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+
+    /* Animation keyframes for toast slide in */
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }  /* Start off-screen */
+      to { transform: translateX(0); opacity: 1; }       /* End on-screen */
+    }
+
+    /* Animation keyframes for toast slide out */
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }     /* Start on-screen */
+      to { transform: translateX(100%); opacity: 0; }   /* End off-screen */
+    }
+    /* Welcome section fade out animation */
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+
+    /* Enhanced form styling */
+    .form-group {
+      position: relative;
+    }
+
+    .form-group input:focus + .form-help {
+      opacity: 1;
+    }
+
+    .form-help {
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+
+    /* Demo button hover effect */
+    #demoLogin:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+  </style>
+</head>
+
+<!-- Body element with responsive classes and dark mode support -->
+<body class="bg-page dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans flex flex-col min-h-screen">
+  <!-- Toast notification container for displaying messages -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Navigation bar at the top of the page -->
+  <nav class="bg-surface dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-20">
+    <div class="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
+        <!-- Company logo with fallback to text logo if image fails -->
+        <a href="/" class="flex items-center gap-3 group">
+            <img src="/assets/images/logo.png" alt="Premnath Engineering" class="w-[150px] md:w-[200px] h-[34px] md:h-[45px] rounded group-hover:scale-105 transition shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="w-[150px] md:w-[200px] h-[34px] md:h-[45px] bg-black text-white hidden items-center justify-center font-display font-bold text-xl rounded group-hover:bg-blue-700 transition shadow-sm">P</div>
+        </a>
+
+        <!-- Right side navigation items -->
+        <div class="flex items-center gap-4">
+             <!-- Dark/Light theme toggle button -->
+             <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition">
+                <!-- Sun icon for light mode -->
+                <svg id="sun-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <!-- Moon icon for dark mode (hidden by default) -->
+                <svg id="moon-icon" class="w-5 h-5 text-gray-800 dark:text-gray-200 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+  </nav>
+
+  <!-- Main content area - centered login form -->
+  <div class="flex-grow flex items-center justify-center p-4">
+    <!-- Background watermark text -->
+    <div class="watermark">PREMNATHRAIL</div>
+
+    <!-- Welcome section for new users -->
+    <div id="welcomeSection" class="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 p-6 rounded-xl shadow-lg mb-6 w-full max-w-2xl border-l-4 border-blue-500">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
+            <i class="fas fa-rocket text-blue-600 dark:text-blue-400 text-xl"></i>
+          </div>
+        </div>
+        <div class="flex-grow">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Welcome to Premnath Engineering Platform</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            Access advanced railway engineering calculation tools for braking systems, hydraulic analysis, load distribution, and vehicle performance calculations.
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-tools text-green-600"></i>
+              <span>Professional Engineering Tools</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-chart-line text-blue-600"></i>
+              <span>Real-time Calculations</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-file-pdf text-red-600"></i>
+              <span>PDF Report Generation</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-users text-purple-600"></i>
+              <span>Team Collaboration</span>
+            </div>
+          </div>
+          <button id="dismissWelcome" class="mt-3 text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium">
+            <i class="fas fa-times mr-1"></i>Dismiss
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login form container with styling -->
+    <div class="bg-surface dark:bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md border-t-4 border-dark">
+      <!-- Logo section with fallback -->
+      <div class="text-center mb-8">
+          <img src="/assets/images/logo.png" alt="Premnath Engineering" class="h-12 mx-auto mb-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <div class="w-12 h-12 bg-black text-white hidden mx-auto mb-2 items-center justify-center font-display font-bold text-xl rounded">P</div>
+      </div>
+
+      <!-- Login form title with help text -->
+      <div class="text-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">System Login</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Enter your credentials to access the engineering platform
+        </p>
+      </div>
+
+      <!-- Status message area for displaying login feedback -->
+      <div id="statusMessage" class="hidden mb-6 p-3 rounded-lg text-sm font-semibold"></div>
+
+      <!-- Login form with email and password fields -->
+      <form id="loginForm" class="space-y-6">
+        <!-- Email input field with help -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+            Email Address
+            <span class="text-red-500">*</span>
+          </label>
+          <input type="email" id="email" class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-dark focus:ring-2 focus:ring-dark/20 focus:outline-none transition" placeholder="engineer@premnath.com" required>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <i class="fas fa-info-circle mr-1"></i>Use your registered email address
+          </p>
+        </div>
+        <!-- Password input field with help -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">
+            Password
+            <span class="text-red-500">*</span>
+          </label>
+          <input type="password" id="password" class="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-dark focus:ring-2 focus:ring-dark/20 focus:outline-none transition" placeholder="Enter your password" required>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <i class="fas fa-lock mr-1"></i>Minimum 8 characters required
+          </p>
+        </div>
+        <!-- Login button with enhanced styling -->
+        <button type="submit" class="w-full bg-dark text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-800 transition shadow-lg hover:shadow-xl transform hover:scale-105">
+          <i class="fas fa-sign-in-alt mr-2"></i>Log In to Platform
+        </button>
+      </form>
+    
+    <div class="mt-8 space-y-4 text-center">
+        <!-- Account creation section -->
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          <p class="mb-2">Don't have an account?</p>
+          <a href="/signup.html" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition text-sm">
+            <i class="fas fa-user-plus"></i>
+            Create New Account
+          </a>
+        </div>
+
+        <!-- Help and navigation links -->
+        <div class="border-t border-gray-200 dark:border-gray-600 pt-4 space-y-2">
+          <div class="flex flex-col sm:flex-row gap-2 justify-center text-xs">
+            <a href="/user-guide.html" class="text-blue-600 dark:text-blue-400 hover:underline">
+              <i class="fas fa-book mr-1"></i>User Guide
+            </a>
+            <span class="hidden sm:inline text-gray-400">•</span>
+            <a href="/faq.html" class="text-blue-600 dark:text-blue-400 hover:underline">
+              <i class="fas fa-question-circle mr-1"></i>FAQ
+            </a>
+            <span class="hidden sm:inline text-gray-400">•</span>
+            <a href="mailto:support@premnath.com" class="text-blue-600 dark:text-blue-400 hover:underline">
+              <i class="fas fa-envelope mr-1"></i>Support
+            </a>
+          </div>
+          <a href="/" class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition inline-block">
+            <i class="fas fa-home mr-1"></i>Back to Home
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+    <!-- JavaScript for interactive functionality -->
+    <script>
+      // Wait for DOM to load before executing JavaScript
+      document.addEventListener("DOMContentLoaded", function() {
+        // Initialize dark mode based on saved preference
+        const theme = localStorage.getItem('theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');  // Add dark class to HTML element
+          document.getElementById('sun-icon').classList.add('hidden');    // Hide sun icon
+          document.getElementById('moon-icon').classList.remove('hidden'); // Show moon icon
+        }
+
+        // Theme toggle button event listener
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+          const html = document.documentElement;  // Get HTML root element
+          const sunIcon = document.getElementById('sun-icon');    // Sun icon element
+          const moonIcon = document.getElementById('moon-icon');  // Moon icon element
+
+          // Toggle between light and dark themes
+          if (html.classList.contains('dark')) {
+            // Switch to light mode
+            html.classList.remove('dark');
+            localStorage.setItem('theme', 'light');  // Save preference
+            sunIcon.classList.remove('hidden');       // Show sun icon
+            moonIcon.classList.add('hidden');         // Hide moon icon
+          } else {
+            // Switch to dark mode
+            html.classList.add('dark');
+            localStorage.setItem('theme', 'dark');    // Save preference
+            sunIcon.classList.add('hidden');          // Hide sun icon
+            moonIcon.classList.remove('hidden');      // Show moon icon
+          }
+        });
+
+        // Welcome section management
+        const welcomeSection = document.getElementById('welcomeSection');
+        const dismissWelcome = document.getElementById('dismissWelcome');
+
+        // Check if welcome was previously dismissed
+        if (localStorage.getItem('welcomeDismissed')) {
+          welcomeSection.style.display = 'none';
+        }
+
+        // Dismiss welcome section
+        dismissWelcome.addEventListener('click', function() {
+          welcomeSection.style.animation = 'fadeOut 0.3s ease forwards';
+          setTimeout(() => {
+            welcomeSection.style.display = 'none';
+            localStorage.setItem('welcomeDismissed', 'true');
+          }, 300);
+        });
+
+        // Redirect to home if user is already logged in
+        if (localStorage.getItem("token")) {
+          window.location.href = "/";
+        }
+      });
+
+      // Function to display toast notifications
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');  // Toast container element
+        const toast = document.createElement('div');  // Create new toast element
+        toast.className = `toast ${type}`;  // Apply CSS classes
+        // Define icons for different toast types
+        const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+        // Set toast content with icon and message
+        toast.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${message}</span>`;
+        container.appendChild(toast);  // Add toast to container
+        // Auto-remove toast after 3 seconds with slide-out animation
+        setTimeout(() => {
+          toast.style.animation = 'slideOut 0.3s ease forwards';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      // Login form submission handler
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();  // Prevent default form submission
+        // Get form input values
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const btn = e.target.querySelector('button');  // Submit button element
+
+        // Set button to loading state
+        const originalText = btn.innerText;
+        btn.innerText = "Verifying Credentials...";
+        btn.disabled = true;
+        btn.classList.add('opacity-75');
+
+          try {
+          // Send login request to API
+          const res = await fetch('/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            // Login successful - store user data in localStorage
+            localStorage.setItem("token", "true");
+            localStorage.setItem("user_id", data.user_id);
+            localStorage.setItem("email", data.email);
+            localStorage.setItem("is_license_active", data.is_license_active);
+            localStorage.setItem("role", data.role);
+
+            // Role-based redirect after successful login
+            if (data.role === "admin") {
+              window.location.href = "/admin.html";      // Admin dashboard
+            } else if (data.role === "manager") {
+              window.location.href = "/manager.html";    // Manager dashboard
+            } else if (data.is_new_user) {
+              window.location.href = "/profile.html";    // New user onboarding
+            } else {
+              window.location.href = "/";                // Regular user home
+            }
+          } else {
+            // Login failed - show error toast
+            showToast("Login Failed: " + (data.detail || "Invalid credentials"), "error");
+            // Reset button to original state
+            btn.innerText = originalText;
+            btn.disabled = false;
+            btn.classList.remove('opacity-75');
+          }
+          } catch (err) {
+            // Network/server error
+            showToast("Server Error. Check internet connection.", "error");
+            // Reset button on error
+            btn.innerText = originalText;
+            btn.disabled = false;
+            btn.classList.remove('opacity-75');
+          }
+      });
+    </script>
+
+    <!-- Footer section at the bottom of the page -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto py-8">
+        <div class="px-6 flex flex-col md:flex-row justify-between items-center">
+            <!-- Copyright notice -->
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">© 2024 Premnath Engineering Works • All rights reserved</p>
+        </div>
+    </footer>
+  </body>
+</html>
